@@ -1,9 +1,9 @@
 CREATE TABLE "pedidos" (
-  "PedidoID" SERIAL PRIMARY KEY NOT NULL,
-  "DataPedido" timestamptz NOT NULL default (now()),
-  "StatusPedido" VARCHAR NOT NULL,
-  "ValorPedido" FLOAT NOT NULL,
-  "Quantidade" INTEGER NOT NULL,
-  "ClienteID" INTEGER REFERENCES clientes("ClienteID"),
-  "VendedorID" INTEGER REFERENCES vendedores("VendedorID")
+  "pedido_id" SERIAL PRIMARY KEY,
+  "data_pedido" timestamptz NOT NULL default (now()),
+  "status_pedido" VARCHAR NOT NULL,
+  "valor_pedido" FLOAT NOT NULL,
+  "quantidade" INTEGER NOT NULL,
+  "cliente_id" INTEGER REFERENCES clientes("cliente_id"),
+  "vendedor_id" INTEGER REFERENCES vendedores("vendedor_id")
 );

@@ -1,6 +1,6 @@
 CREATE TABLE "clientes" (
-  "ClienteID" SERIAL PRIMARY KEY NOT NULL,
-  "NomeCliente" VARCHAR NOT NULL,
-  "TelefoneCliente" VARCHAR NOT NULL,
-  "Saldo" FLOAT NOT NULL
+  "cliente_id" SERIAL PRIMARY KEY ,
+  "nome_cliente" VARCHAR(60) NOT NULL,
+  "telefone_cliente" VARCHAR NOT NULL,
+  "saldo" FLOAT NOT NULL
 );

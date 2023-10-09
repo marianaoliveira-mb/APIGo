@@ -1,4 +1,4 @@
 CREATE TABLE "vendedores" (
-  "VendedorID" SERIAL PRIMARY KEY NOT NULL,
-  "NomeVendedor" VARCHAR NOT NULL
+  "vendedor_id" SERIAL PRIMARY KEY,
+  "nome_vendedor" VARCHAR(60) NOT NULL
 );

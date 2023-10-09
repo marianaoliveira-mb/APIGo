@@ -1,6 +1,7 @@
 CREATE TABLE "produtos" (
-  "ProdutoID" SERIAL PRIMARY KEY NOT NULL,
-  "NomeProduto" VARCHAR NOT NULL,
-  "ValorProduto" FLOAT NOT NULL,
-  "Estoque" INTEGER NOT NULL
+  "produto_id" SERIAL PRIMARY KEY,
+  "nome_produto" VARCHAR(60) NOT NULL,
+  "valor_produto" FLOAT NOT NULL,
+  "estoque" INTEGER NOT NULL
 );
+
