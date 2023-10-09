@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/Matari73/APIGo/database"
 	"github.com/Matari73/APIGo/models"
@@ -17,20 +16,17 @@ func Home(w http.ResponseWriter, r *http.Request) {
 
 //produtos
 func GetProdutos(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode(models.Produtos)
+	var p []models.Produto
+	database.DB.Find(&p)
+	json.NewEncoder(w).Encode(p)
 }
 
 func GetProduto(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
-
-	//log.Printf("ID do Produto recebido: %s", id)
-	for _, Produto := range models.Produtos {
-		//log.Printf("Produto encontrado: %+v", Produto)
-		if strconv.Itoa(Produto.ProdutoID) == id {
-			json.NewEncoder(w).Encode(Produto)
-		}
-	}
+	var produto models.Produto
+	database.DB.First(&produto, id)
+	json.NewEncoder(w).Encode(produto)
 }
 
 func CreateProduto(w http.ResponseWriter, r *http.Request) {
@@ -43,20 +39,17 @@ func CreateProduto(w http.ResponseWriter, r *http.Request) {
 
 //clientes
 func GetClientes(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode(models.Clientes)
+	var c []models.Cliente
+	database.DB.Find(&c)
+	json.NewEncoder(w).Encode(c)
 }
 
 func GetCliente(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
-
-	//log.Printf("ID do Cliente recebido: %s", id)
-	for _, Cliente := range models.Clientes {
-		//log.Printf("Cliente encontrado: %+v", Cliente)
-		if strconv.Itoa(Cliente.ClienteID) == id {
-			json.NewEncoder(w).Encode(Cliente)
-		}
-	}
+	var cliente models.Cliente
+	database.DB.First(&cliente, id)
+	json.NewEncoder(w).Encode(cliente)
 }
 
 func CreateCliente(w http.ResponseWriter, r *http.Request) {
@@ -68,23 +61,19 @@ func CreateCliente(w http.ResponseWriter, r *http.Request) {
 
 //vendedores
 func GetVendedores(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode(models.Vendedores)
+	var v []models.Vendedor
+	database.DB.Find(&v)
+	json.NewEncoder(w).Encode(v)
 }
 
 func GetVendedor(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
-
-	//log.Printf("ID do Vendedor recebido: %s", id)
-	for _, Vendedor := range models.Vendedores {
-		//log.Printf("Vendedor encontrado: %+v", Vendedor)
-		if strconv.Itoa(Vendedor.VendedorID) == id {
-			json.NewEncoder(w).Encode(Vendedor)
-		}
-	}
+	var vendedor models.Vendedor
+	database.DB.First(&vendedor, id)
+	json.NewEncoder(w).Encode(vendedor)
 }
 
-//Dando erro
 func CreateVendedor(w http.ResponseWriter, r *http.Request) {
 	var novoVendedor models.Vendedor
 	json.NewDecoder(r.Body).Decode(&novoVendedor)
@@ -94,19 +83,17 @@ func CreateVendedor(w http.ResponseWriter, r *http.Request) {
 
 //pedidos
 func GetPedidos(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode(models.Pedidos)
+	var p []models.Pedido
+	database.DB.Find(&p)
+	json.NewEncoder(w).Encode(p)
 }
 func GetPedido(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
-
-	//log.Printf("ID do Cliente recebido: %s", id)
-	for _, Pedido := range models.Pedidos {
-		//log.Printf("Cliente encontrado: %+v", Pedido)
-		if strconv.Itoa(Pedido.PedidoID) == id {
-			json.NewEncoder(w).Encode(Pedido)
-		}
-	}
+	//log.Printf("ID do Produto recebido: %s", id)
+	var pedido models.Pedido
+	database.DB.First(&pedido, id)
+	json.NewEncoder(w).Encode(pedido)
 }
 
 func CreatePedido(w http.ResponseWriter, r *http.Request) {
@@ -118,7 +105,9 @@ func CreatePedido(w http.ResponseWriter, r *http.Request) {
 
 //produtosPedidos
 func GetProdutosPedidos(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode(models.ProdutosPedidos)
+	var p []models.Pedido
+	database.DB.Find(&p)
+	json.NewEncoder(w).Encode(p)
 }
 
 /*func GetProdutoPedido(w http.ResponseWriter, r *http.Request) { //ver erro

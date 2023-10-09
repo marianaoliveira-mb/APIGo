@@ -3,7 +3,7 @@ package models
 import "time"
 
 type Pedido struct {
-	PedidoID     int       `json:"pedido_id"`
+	PedidoID     string    `json:"pedido_id" gorm:"default:uuid_generate_v3()"`
 	DataPedido   time.Time `json:"data_pedido"`
 	StatusPedido string    `json:"status_pedido"`
 	ValorPedido  float64   `json:"valor_pedido"`

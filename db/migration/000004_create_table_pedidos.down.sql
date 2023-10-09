@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS "pedidos";
+DROP TABLE IF EXISTS "pedido";

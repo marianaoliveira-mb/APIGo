@@ -5,6 +5,7 @@ import (
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
 )
 
 var (
@@ -14,7 +15,11 @@ var (
 
 func ConectaComBancoDeDados() {
 	stringDeConexao := "host=localhost user=postgres password=postgres dbname=APIGo port=5432 sslmode=disable"
-	DB, err = gorm.Open(postgres.Open(stringDeConexao))
+	DB, err = gorm.Open(postgres.Open(stringDeConexao), &gorm.Config{
+		NamingStrategy: schema.NamingStrategy{
+			SingularTable: true, // Evitar pluralização das tabelas
+		},
+	})
 	if err != nil {
 		log.Panic("Erro ao conectar com banco de dados")
 	}
