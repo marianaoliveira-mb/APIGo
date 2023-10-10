@@ -33,6 +33,18 @@ func HandleResquest() {
 	r.HandleFunc("/api/pedidos", controllers.CreatePedido).Methods("Post")
 	//r.HandleFunc("/api/prodped", controllers.GetProdutosPedidos).Methods("Get")
 
+	//rotas Delete
+	r.HandleFunc("/api/produtos/{id}", controllers.DeleteProduto).Methods("Delete")
+	r.HandleFunc("/api/clientes/{id}", controllers.DeleteCliente).Methods("Delete")
+	r.HandleFunc("/api/vendedores/{id}", controllers.DeleteVendedor).Methods("Delete")
+	r.HandleFunc("/api/pedidos/{id}", controllers.DeletePedido).Methods("Delete")
+
+	//rotas Update
+	r.HandleFunc("/api/produtos/{id}", controllers.UpdateProduto).Methods("Put")
+	r.HandleFunc("/api/clientes/{id}", controllers.UpdateCliente).Methods("Put")
+	r.HandleFunc("/api/vendedores/{id}", controllers.UpdateVendedor).Methods("Put")
+	r.HandleFunc("/api/pedidos/{id}", controllers.UpdatePedido).Methods("Put")
+
 	log.Fatal(http.ListenAndServe(":8000", r))
 
 }

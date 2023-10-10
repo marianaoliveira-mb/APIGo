@@ -32,9 +32,25 @@ func GetProduto(w http.ResponseWriter, r *http.Request) {
 func CreateProduto(w http.ResponseWriter, r *http.Request) {
 	var novoProduto models.Produto
 	json.NewDecoder(r.Body).Decode(&novoProduto)
-	fmt.Println(novoProduto)
 	database.DB.Create(&novoProduto)
 	json.NewEncoder(w).Encode(novoProduto)
+}
+
+func DeleteProduto(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	var produto models.Produto
+	database.DB.Delete(&produto, id)
+	json.NewEncoder(w).Encode(produto)
+}
+
+func UpdateProduto(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	var produto models.Produto
+	json.NewDecoder(r.Body).Decode(&produto)
+	database.DB.Model(&models.Produto{}).Where("produto_id = ?", id).Updates(&produto)
+	json.NewEncoder(w).Encode(produto)
 }
 
 //clientes
@@ -59,6 +75,24 @@ func CreateCliente(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(novoCliente)
 }
 
+func DeleteCliente(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	var cliente models.Cliente
+	database.DB.Delete(&cliente, id)
+	json.NewEncoder(w).Encode(cliente)
+}
+
+func UpdateCliente(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	var cliente models.Cliente
+	database.DB.First(&cliente, id)
+	json.NewDecoder(r.Body).Decode(&cliente)
+	database.DB.Model(&models.Cliente{}).Where("cliente_id = ?", id).Updates(&cliente)
+	json.NewEncoder(w).Encode(cliente)
+}
+
 //vendedores
 func GetVendedores(w http.ResponseWriter, r *http.Request) {
 	var v []models.Vendedor
@@ -81,6 +115,24 @@ func CreateVendedor(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(novoVendedor)
 }
 
+func DeleteVendedor(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	var vendedor models.Vendedor
+	database.DB.Delete(&vendedor, id)
+	json.NewEncoder(w).Encode(vendedor)
+}
+
+func UpdateVendedor(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	var vendedor models.Vendedor
+	database.DB.First(&vendedor, id)
+	json.NewDecoder(r.Body).Decode(&vendedor)
+	database.DB.Model(&models.Vendedor{}).Where("vendedor_id = ?", id).Updates(&vendedor)
+	json.NewEncoder(w).Encode(vendedor)
+}
+
 //pedidos
 func GetPedidos(w http.ResponseWriter, r *http.Request) {
 	var p []models.Pedido
@@ -90,7 +142,6 @@ func GetPedidos(w http.ResponseWriter, r *http.Request) {
 func GetPedido(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
-	//log.Printf("ID do Produto recebido: %s", id)
 	var pedido models.Pedido
 	database.DB.First(&pedido, id)
 	json.NewEncoder(w).Encode(pedido)
@@ -101,6 +152,24 @@ func CreatePedido(w http.ResponseWriter, r *http.Request) {
 	json.NewDecoder(r.Body).Decode(&novoPedido)
 	database.DB.Create(&novoPedido)
 	json.NewEncoder(w).Encode(novoPedido)
+}
+
+func DeletePedido(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	var pedido models.Pedido
+	database.DB.Delete(&pedido, id)
+	json.NewEncoder(w).Encode(pedido)
+}
+
+func UpdatePedido(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	var pedido models.Pedido
+	database.DB.First(&pedido, id)
+	json.NewDecoder(r.Body).Decode(&pedido)
+	database.DB.Model(&models.Pedido{}).Where("pedido_id = ?", id).Updates(&pedido)
+	json.NewEncoder(w).Encode(pedido)
 }
 
 //produtosPedidos
