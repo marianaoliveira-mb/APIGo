@@ -1,0 +1,1 @@
+ALTER TABLE "pedido" DROP COLUMN IF EXISTS "quantidade";

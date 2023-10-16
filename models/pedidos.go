@@ -7,7 +7,6 @@ type Pedido struct {
 	DataPedido   time.Time `json:"data_pedido"`
 	StatusPedido string    `json:"status_pedido"`
 	ValorPedido  float64   `json:"valor_pedido"`
-	Quantidade   int       `json:"quantidade"`
 	ClienteID    int       `json:"cliente_id"`
 	VendedorID   int       `json:"vendedor_id"`
 	Produtos     []Produto `gorm:"many2many:produto_pedidos;foreignKey:PedidoID;joinForeignKey:PedidoID;joinReferences:ProdutoID"`

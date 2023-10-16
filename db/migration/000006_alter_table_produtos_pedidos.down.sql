@@ -1,0 +1,1 @@
+ALTER TABLE "produto_pedido" DROP COLUMN "quantidade";
