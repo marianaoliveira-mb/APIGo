@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Matari73/APIGo/database"
 	"github.com/Matari73/APIGo/models"
@@ -463,6 +464,8 @@ func CreatePedido(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	novoPedido.DataPedido = time.Now()
+
 	saldoCliente, err := obterSaldoCliente(uint(novoPedido.ClienteID))
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -590,13 +593,6 @@ func UpdatePedido(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Erro ao codificar o pedido em JSON: %v", err)
 		return
 	}
-}
-
-//produtosPedidos
-func GetProdutosPedidos(w http.ResponseWriter, r *http.Request) {
-	var p []models.Pedido
-	database.DB.Find(&p)
-	json.NewEncoder(w).Encode(p)
 }
 
 func verificaClienteExistente(clienteID uint) (bool, error) {
