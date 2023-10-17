@@ -9,7 +9,7 @@ type Pedido struct {
 	ValorPedido  float64   `json:"valor_pedido"`
 	ClienteID    int       `json:"cliente_id"`
 	VendedorID   int       `json:"vendedor_id"`
-	Produtos     []Produto `gorm:"many2many:produto_pedidos;foreignKey:PedidoID;joinForeignKey:PedidoID;joinReferences:ProdutoID"`
+	Produtos     []Produto `gorm:"many2many:produto_pedido;"`
 }
 
 var Pedidos []Pedido

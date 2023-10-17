@@ -648,3 +648,125 @@ func atualizarSaldoCliente(clienteID uint, valorPedido float64) error {
 
 	return nil
 }
+
+func AdicionarProdutoAoPedidoHandler(w http.ResponseWriter, r *http.Request) {
+	var dadosRequisicao struct {
+		PedidoID   uint `json:"pedido_id"`
+		ProdutoID  uint `json:"produto_id"`
+		Quantidade int  `json:"quantidade"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&dadosRequisicao)
+	if err != nil {
+		http.Error(w, "Erro ao decodificar o corpo da requisição", http.StatusBadRequest)
+		return
+	}
+
+	fmt.Println("Chamando AdicionarProdutoAoPedido")
+	err = AdicionarProdutoAoPedido(dadosRequisicao.PedidoID, dadosRequisicao.ProdutoID, dadosRequisicao.Quantidade)
+	if err != nil {
+		fmt.Printf("Erro ao adicionar produto ao pedido: %v\n", err)
+		http.Error(w, fmt.Sprintf("Erro ao adicionar produto ao pedido: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Println("Produto adicionado ao pedido com sucesso")
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func AdicionarProdutoAoPedido(pedidoID uint, produtoID uint, quantidade int) error {
+	fmt.Printf("Adicionando produto ao pedido. PedidoID: %d, ProdutoID: %d, Quantidade: %d\n", pedidoID, produtoID, quantidade)
+
+	pedido := models.Pedido{}
+	if err := database.DB.First(&pedido, pedidoID).Error; err != nil {
+		return fmt.Errorf("Erro ao carregar o pedido: %v", err)
+	}
+
+	produto := models.Produto{}
+	if err := database.DB.First(&produto, produtoID).Error; err != nil {
+		return fmt.Errorf("Erro ao carregar o produto: %v", err)
+	}
+
+	if quantidade > produto.Estoque {
+		return errors.New("Quantidade maior do que o estoque disponível")
+	}
+
+	novoEstoque := produto.Estoque - quantidade
+	if err := database.DB.Model(&models.Produto{}).Where("produto_id = ?", produtoID).
+		Update("estoque", novoEstoque).Error; err != nil {
+		return fmt.Errorf("Erro ao atualizar o estoque do produto: %v", err)
+	}
+
+	produtoPedido := models.ProdutoPedido{}
+	resultProdutoPedido := database.DB.Where("produto_id = ? AND pedido_id = ?", produtoID, pedidoID).First(&produtoPedido)
+	if resultProdutoPedido.Error == nil {
+		fmt.Println("A associação entre produto e pedido já existe.")
+		return nil
+	}
+
+	produtoPedido = models.ProdutoPedido{
+		PedidoID:   int(pedidoID),
+		ProdutoID:  int(produtoID),
+		Quantidade: quantidade,
+	}
+
+	resultCriacao := database.DB.Create(&produtoPedido)
+	if resultCriacao.Error != nil {
+		return fmt.Errorf("Erro ao criar a associação entre produto e pedido: %v", resultCriacao.Error)
+	}
+
+	fmt.Println("Associação entre produto e pedido criada com sucesso.")
+
+	return nil
+}
+
+type HistoricoCompraStru struct {
+	PedidoID     uint              `json:"pedido_id"`
+	DataPedido   time.Time         `json:"data_pedido"`
+	StatusPedido string            `json:"status_pedido"`
+	ValorPedido  float64           `json:"valor_pedido"`
+	Produtos     []*models.Produto `gorm:"many2many:produto_pedido;" json:"produtos"`
+}
+
+func HistoricoCompras(w http.ResponseWriter, r *http.Request) {
+	clienteIDStr := mux.Vars(r)["cliente_id"]
+	clienteID, err := strconv.Atoi(clienteIDStr)
+	if err != nil {
+		http.Error(w, "ID do cliente inválido", http.StatusBadRequest)
+		return
+	}
+
+	// Consulte o banco de dados para obter o histórico de compras do cliente
+	var historicoCompras []HistoricoCompraStru
+
+	// Consulte o banco de dados para obter os pedidos do cliente
+	err = database.DB.Table("pedido").
+		Select("pedido_id, data_pedido, status_pedido, valor_pedido").
+		Where("cliente_id = ?", clienteID).
+		Find(&historicoCompras).Error
+
+	if err != nil {
+		http.Error(w, "Erro ao obter os pedidos do cliente", http.StatusInternalServerError)
+		return
+	}
+
+	// Itere sobre os pedidos e obtenha os produtos associados
+	for i := range historicoCompras {
+		pedidoID := historicoCompras[i].PedidoID
+
+		// Consulte o banco de dados para obter os produtos associados a este pedido
+		err = database.DB.Table("produto_pedido").
+			Select("produto.produto_id, produto.nome_produto, produto.valor_produto, produto_pedido.quantidade").
+			Joins("JOIN produto ON produto_pedido.produto_id = produto.produto_id").
+			Where("produto_pedido.pedido_id = ?", pedidoID).
+			Scan(&historicoCompras[i].Produtos).Error
+
+		if err != nil {
+			http.Error(w, "Erro ao obter os produtos associados ao pedido", http.StatusInternalServerError)
+			return
+		}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(historicoCompras)
+}

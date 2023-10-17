@@ -1,8 +1,8 @@
 package models
 
 type ProdutoPedido struct {
-	ProdutoID  int `json:"produto_id"`
-	PedidoID   int `json:"pedido_id"`
+	PedidoID   int `json:"pedido_id" gorm:"primaryKey;foreignKey:PedidoID"`
+	ProdutoID  int `json:"produto_id" gorm:"primaryKey;foreignKey:ProdutoID"`
 	Quantidade int `json:"quantidade"`
 }
 
