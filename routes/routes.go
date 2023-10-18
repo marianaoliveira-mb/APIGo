@@ -46,8 +46,6 @@ func HandleResquest() {
 	r.HandleFunc("/api/adicionar-produto-pedido", controllers.AdicionarProdutoAoPedidoHandler).Methods("POST")
 	r.HandleFunc("/api/clientes/{cliente_id}/historico_compras", controllers.HistoricoCompras).Methods("GET")
 
-	// r.HandleFunc("/api/produto-pedido", controllers.CreateProdutoPedidoHandler).Methods("Post")
-	// r.HandleFunc("/api/produto-pedido", controllers.HandleAssociacoesProdutoPedido).Methods("Get")
 	log.Fatal(http.ListenAndServe(":8000", r))
 
 }

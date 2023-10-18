@@ -79,6 +79,14 @@ func CreateProduto(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Verificar se o nome do produto já existe
+	var produtoExistente models.Produto
+	if err := database.DB.Where("nome_produto = ?", novoProduto.NomeProduto).First(&produtoExistente).Error; err == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, "Já existe um produto com o nome '%s'", novoProduto.NomeProduto)
+		return
+	}
+
 	if err := database.DB.Create(&novoProduto).Error; err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "Erro ao criar o produto: %v", err)
@@ -736,27 +744,25 @@ func HistoricoCompras(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Consulte o banco de dados para obter o histórico de compras do cliente
 	var historicoCompras []HistoricoCompraStru
 
-	// Consulte o banco de dados para obter os pedidos do cliente
 	err = database.DB.Table("pedido").
-		Select("pedido_id, data_pedido, status_pedido, valor_pedido").
-		Where("cliente_id = ?", clienteID).
-		Find(&historicoCompras).Error
+		Select("pedido.pedido_id, pedido.data_pedido, pedido.status_pedido, pedido.valor_pedido, produto.produto_id, produto.nome_produto, produto.valor_produto, produto.estoque, produto_pedido.quantidade").
+		Joins("JOIN produto_pedido ON produto_pedido.pedido_id = pedido.pedido_id").
+		Joins("JOIN produto ON produto_pedido.produto_id = produto.produto_id").
+		Where("pedido.cliente_id = ?", clienteID).
+		Scan(&historicoCompras).Error
 
 	if err != nil {
 		http.Error(w, "Erro ao obter os pedidos do cliente", http.StatusInternalServerError)
 		return
 	}
 
-	// Itere sobre os pedidos e obtenha os produtos associados
 	for i := range historicoCompras {
 		pedidoID := historicoCompras[i].PedidoID
 
-		// Consulte o banco de dados para obter os produtos associados a este pedido
 		err = database.DB.Table("produto_pedido").
-			Select("produto.produto_id, produto.nome_produto, produto.valor_produto, produto_pedido.quantidade").
+			Select("produto.produto_id, produto.nome_produto, produto.valor_produto, produto.estoque, produto_pedido.quantidade").
 			Joins("JOIN produto ON produto_pedido.produto_id = produto.produto_id").
 			Where("produto_pedido.pedido_id = ?", pedidoID).
 			Scan(&historicoCompras[i].Produtos).Error
@@ -768,5 +774,10 @@ func HistoricoCompras(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(historicoCompras)
+	encoder := json.NewEncoder(w)
+
+	if err := encoder.Encode(historicoCompras); err != nil {
+		http.Error(w, fmt.Sprintf("Erro ao codificar para JSON: %v", err), http.StatusInternalServerError)
+		return
+	}
 }
