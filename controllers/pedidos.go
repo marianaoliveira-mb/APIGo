@@ -25,6 +25,9 @@ func GetPedidos(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Erro ao codificar a resposta: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	w.WriteHeader(http.StatusOK)
+	fmt.Println("Pedidos listados com sucesso!")
 }
 func GetPedido(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
@@ -37,12 +40,13 @@ func GetPedido(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := json.NewEncoder(w).Encode(pedido)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Erro ao codificar produto em JSON: %v", err)
+	if err := codificarEmJson(w, pedido); err != nil {
+		fmt.Fprintf(w, "Erro ao codificar o pedido em JSON: %v", err)
 		return
 	}
+
+	w.WriteHeader(http.StatusOK)
+	fmt.Println("Pedido listado com sucesso!")
 }
 
 func CreatePedido(w http.ResponseWriter, r *http.Request) {
@@ -107,7 +111,7 @@ func CreatePedido(w http.ResponseWriter, r *http.Request) {
 
 	if err := database.DB.Create(&novoPedido).Error; err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Erro ao criar o novo cliente: %v", err)
+		fmt.Fprintf(w, "Erro ao criar o novo pedido: %v", err)
 		return
 	}
 
@@ -117,11 +121,13 @@ func CreatePedido(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := json.NewEncoder(w).Encode(novoPedido); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Erro ao codificar o produto em JSON: %v", err)
+	if err := codificarEmJson(w, novoPedido); err != nil {
+		fmt.Fprintf(w, "Erro ao codificar o pedido em JSON: %v", err)
 		return
 	}
+
+	w.WriteHeader(http.StatusCreated)
+	fmt.Fprintf(w, "Pedido criado com sucesso")
 }
 
 func DeletePedido(w http.ResponseWriter, r *http.Request) {
@@ -143,7 +149,7 @@ func DeletePedido(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "Pedido excluído com sucesso")
+	fmt.Fprintf(w, "Pedido excluído com sucesso!")
 }
 
 func UpdatePedido(w http.ResponseWriter, r *http.Request) {
@@ -177,10 +183,10 @@ func UpdatePedido(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = json.NewEncoder(w).Encode(pedido)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+	if err := codificarEmJson(w, pedido); err != nil {
 		fmt.Fprintf(w, "Erro ao codificar o pedido em JSON: %v", err)
 		return
 	}
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, "Pedido atualizado com sucesso!")
 }

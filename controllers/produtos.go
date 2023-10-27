@@ -24,6 +24,9 @@ func GetProdutos(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Erro ao codificar a resposta: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	w.WriteHeader(http.StatusOK)
+	fmt.Println("Produtos listados com sucesso!")
 }
 
 func GetProduto(w http.ResponseWriter, r *http.Request) {
@@ -37,12 +40,12 @@ func GetProduto(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := json.NewEncoder(w).Encode(produto)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+	if err := codificarEmJson(w, produto); err != nil {
 		fmt.Fprintf(w, "Erro ao codificar produto em JSON: %v", err)
 		return
 	}
+	w.WriteHeader(http.StatusOK)
+	fmt.Println("Produto listado com sucesso!")
 }
 
 func CreateProduto(w http.ResponseWriter, r *http.Request) {
@@ -85,11 +88,13 @@ func CreateProduto(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := json.NewEncoder(w).Encode(novoProduto); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Erro ao codificar o produto em JSON: %v", err)
+	if err := codificarEmJson(w, novoProduto); err != nil {
+		fmt.Fprintf(w, "Erro ao codificar produto em JSON: %v", err)
 		return
 	}
+
+	w.WriteHeader(http.StatusCreated)
+	fmt.Fprintf(w, "Produto criado com sucesso!")
 }
 
 func DeleteProduto(w http.ResponseWriter, r *http.Request) {
@@ -164,10 +169,11 @@ func UpdateProduto(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = json.NewEncoder(w).Encode(produto)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+	if err := codificarEmJson(w, produto); err != nil {
 		fmt.Fprintf(w, "Erro ao codificar produto em JSON: %v", err)
 		return
 	}
+
+	w.WriteHeader(http.StatusOK)
+	fmt.Println("Produto atualizado com sucesso!")
 }

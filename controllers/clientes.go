@@ -23,6 +23,9 @@ func GetClientes(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Erro ao codificar a resposta: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	w.WriteHeader(http.StatusOK)
+	fmt.Println("Clientes listados com sucesso!")
 }
 
 func GetCliente(w http.ResponseWriter, r *http.Request) {
@@ -36,12 +39,13 @@ func GetCliente(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := json.NewEncoder(w).Encode(cliente)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Erro ao codificar cliente em JSON: %v", err)
+	if err := codificarEmJson(w, cliente); err != nil {
+		fmt.Fprintf(w, "Erro ao codificar o cliente em JSON: %v", err)
 		return
 	}
+
+	w.WriteHeader(http.StatusOK)
+	fmt.Println("Cliente listado com sucesso!")
 }
 
 func CreateCliente(w http.ResponseWriter, r *http.Request) {
@@ -71,11 +75,13 @@ func CreateCliente(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := json.NewEncoder(w).Encode(novoCliente); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Erro ao codificar o produto em JSON: %v", err)
+	if err := codificarEmJson(w, novoCliente); err != nil {
+		fmt.Fprintf(w, "Erro ao codificar o cliente em JSON: %v", err)
 		return
 	}
+
+	w.WriteHeader(http.StatusCreated)
+	fmt.Fprintf(w, "Cliente criado com sucesso!")
 }
 
 func DeleteCliente(w http.ResponseWriter, r *http.Request) {
@@ -97,7 +103,7 @@ func DeleteCliente(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "Cliente excluído com sucesso")
+	fmt.Fprintf(w, "Cliente excluído com sucesso!")
 }
 
 func UpdateCliente(w http.ResponseWriter, r *http.Request) {
@@ -131,10 +137,11 @@ func UpdateCliente(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = json.NewEncoder(w).Encode(cliente)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Erro ao codificar cliente em JSON: %v", err)
+	if err := codificarEmJson(w, cliente); err != nil {
+		fmt.Fprintf(w, "Erro ao codificar o cliente em JSON: %v", err)
 		return
 	}
+
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, "Cliente atualizado com sucesso!")
 }

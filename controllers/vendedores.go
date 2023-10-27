@@ -23,6 +23,8 @@ func GetVendedores(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Erro ao codificar a resposta: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, "vendedores listados com sucesso!")
 }
 
 func GetVendedor(w http.ResponseWriter, r *http.Request) {
@@ -36,12 +38,13 @@ func GetVendedor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := json.NewEncoder(w).Encode(vendedor)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+	if err := codificarEmJson(w, vendedor); err != nil {
 		fmt.Fprintf(w, "Erro ao codificar vendedor em JSON: %v", err)
 		return
 	}
+
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, "vendedor listado com sucesso!")
 }
 
 func CreateVendedor(w http.ResponseWriter, r *http.Request) {
@@ -60,15 +63,17 @@ func CreateVendedor(w http.ResponseWriter, r *http.Request) {
 
 	if err := database.DB.Create(&novoVendedor).Error; err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Erro ao criar o novo cliente: %v", err)
+		fmt.Fprintf(w, "Erro ao criar o novo vendedor: %v", err)
 		return
 	}
 
-	if err := json.NewEncoder(w).Encode(novoVendedor); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Erro ao codificar o produto em JSON: %v", err)
+	if err := codificarEmJson(w, novoVendedor); err != nil {
+		fmt.Fprintf(w, "Erro ao codificar vendedor em JSON: %v", err)
 		return
 	}
+
+	w.WriteHeader(http.StatusCreated)
+	fmt.Fprintf(w, "Vendedor criado com sucesso")
 }
 
 func DeleteVendedor(w http.ResponseWriter, r *http.Request) {
@@ -124,10 +129,11 @@ func UpdateVendedor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = json.NewEncoder(w).Encode(vendedor)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Erro ao codificar o vendedor em JSON: %v", err)
+	if err := codificarEmJson(w, vendedor); err != nil {
+		fmt.Fprintf(w, "Erro ao codificar vendedor em JSON: %v", err)
 		return
 	}
+
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, "vendedor atualizado com sucesso!")
 }
