@@ -14,7 +14,7 @@ var (
 )
 
 func ConectaComBancoDeDados() {
-	stringDeConexao := "host=localhost user=postgres password=postgres dbname=APIGo port=5432 sslmode=disable"
+	stringDeConexao := "host=localhost user=postgres password=postgres dbname=postgres port=5432 sslmode=disable"
 	DB, err = gorm.Open(postgres.Open(stringDeConexao), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: true, // Evitar pluralização das tabelas
