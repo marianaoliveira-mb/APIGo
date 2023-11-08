@@ -42,6 +42,8 @@ func HandleResquest() *mux.Router {
 	//Rota histórico
 	r.HandleFunc("/api/adicionar-produto-pedido", controllers.AdicionarProdutoAoPedidoHandler).Methods("POST")
 	r.HandleFunc("/api/clientes/{cliente_id}/historico_compras", controllers.HistoricoCompras).Methods("GET")
+	r.HandleFunc("/api/vendedores/{vendedor_id}/historico_vendas", controllers.HistoricoVendasVendedor).Methods("GET")
+	r.HandleFunc("/api/historico-geral", controllers.HistoricoGeral).Methods("GET")
 
 	return r
 }

@@ -3,6 +3,7 @@ module github.com/Matari73/APIGo
 go 1.18
 
 require (
+	github.com/darahayes/go-boom v0.0.0-20200826120415-fa5cb724143a // indirect
 	github.com/google/uuid v1.3.1 // indirect
 	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect

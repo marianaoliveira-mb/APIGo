@@ -1,3 +1,5 @@
+github.com/darahayes/go-boom v0.0.0-20200826120415-fa5cb724143a h1:jcDIxFSQisnRdQhxyrNiZU09BCMAVSCB5EUfIEcMRQQ=
+github.com/darahayes/go-boom v0.0.0-20200826120415-fa5cb724143a/go.mod h1:pdolYvb25BJ9qqBOz72IVgH9UBQcmF4GxzosJ/qmStQ=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/google/uuid v1.3.1 h1:KjJaJ9iWZ3jOFZIf1Lqf4laDRCasjl0BCmnEGxkdLb4=
 github.com/google/uuid v1.3.1/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=

@@ -19,3 +19,23 @@ func codificarEmJson(w http.ResponseWriter, model interface{}) error {
 	}
 	return nil
 }
+
+type Resposta struct{
+	Mensagem string `json:"mensagem"`
+}
+
+func CreateResposta(mensagem string) Resposta {
+	return Resposta{
+		Mensagem: mensagem,
+	}
+}
+
+// type Error struct{
+// 	Error string `json:"error"`
+// }
+
+// func CreateRespostaErro(err string)ErrorResposta{
+// 	return ErrorResposta{
+// 		Error: err,
+// 	}
+// }

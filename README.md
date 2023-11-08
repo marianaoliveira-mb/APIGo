@@ -30,7 +30,7 @@ O objetivo do projeto é a criação de uma API voltada para a área de vendas(a
 ```migrate -path db/migration -database "postgresql://postgres:postgres@localhost:5432/postgres?sslmode=disable" -verbose up```
 
 *5.* Executar o docker
-```docker start postgres```
+```docker-compose up```
 
 *6.* Executar o servidor
 ```go run main.go```

@@ -2,10 +2,10 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
-	"strconv"
+	"errors"
 
+	"github.com/darahayes/go-boom"
 	"github.com/Matari73/APIGo/database"
 	"github.com/Matari73/APIGo/models"
 	"github.com/gorilla/mux"
@@ -14,17 +14,20 @@ import (
 func GetVendedores(w http.ResponseWriter, r *http.Request) {
 	var v []models.Vendedor
 	if err := database.DB.Find(&v).Error; err != nil {
-		http.Error(w, "Erro ao buscar vendedores: "+err.Error(), http.StatusInternalServerError)
+		erro:= errors.New("Erro ao buscar Vendedores")
+		boom.BadImplementation(w, erro)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(v); err != nil {
-		http.Error(w, "Erro ao codificar a resposta: "+err.Error(), http.StatusInternalServerError)
+		erro:= errors.New("Erro ao codificar a resposta")
+		boom.BadImplementation(w, erro)
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "vendedores listados com sucesso!")
+	sucesso:= CreateResposta("Vendedores listados com sucesso!")
+	json.NewEncoder(w).Encode(sucesso)
 }
 
 func GetVendedor(w http.ResponseWriter, r *http.Request) {
@@ -33,47 +36,51 @@ func GetVendedor(w http.ResponseWriter, r *http.Request) {
 
 	var vendedor models.Vendedor
 	if err := database.DB.First(&vendedor, id).Error; err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintf(w, "Vendedor não encontrado")
+		erro:= errors.New("Vendedor não encontrado")
+		boom.NotFound(w, erro)
 		return
 	}
 
 	if err := codificarEmJson(w, vendedor); err != nil {
-		fmt.Fprintf(w, "Erro ao codificar vendedor em JSON: %v", err)
+		erro:= errors.New("Erro ao codificar o vendedor em JSON")
+		boom.BadRequest(w, erro)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "vendedor listado com sucesso!")
+	sucesso:= CreateResposta("Vendedor listado com sucesso!")
+	json.NewEncoder(w).Encode(sucesso)
 }
 
 func CreateVendedor(w http.ResponseWriter, r *http.Request) {
 	var novoVendedor models.Vendedor
 
 	if err := json.NewDecoder(r.Body).Decode(&novoVendedor); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Erro ao ler o corpo da requisição: %v", err)
+		erro:= errors.New("Erro ao ler o corpo da requisição")
+		boom.BadRequest(w, erro)
 		return
 	}
 	if novoVendedor.NomeVendedor == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "O nome não deve ser vazio")
+		erro:= errors.New("O nome não deve ser vazio")
+		boom.BadRequest(w, erro)
 		return
 	}
 
 	if err := database.DB.Create(&novoVendedor).Error; err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Erro ao criar o novo vendedor: %v", err)
+		erro:= errors.New("Erro ao criar o novo vendedor")
+		boom.BadImplementation(w, erro)
 		return
 	}
 
 	if err := codificarEmJson(w, novoVendedor); err != nil {
-		fmt.Fprintf(w, "Erro ao codificar vendedor em JSON: %v", err)
+		erro:= errors.New("Erro ao codificar o vendedor em JSON")
+		boom.BadRequest(w, erro)
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	fmt.Fprintf(w, "Vendedor criado com sucesso")
+	sucesso:= CreateResposta("Vendedor criado com sucesso!")
+	json.NewEncoder(w).Encode(sucesso)
 }
 
 func DeleteVendedor(w http.ResponseWriter, r *http.Request) {
@@ -83,19 +90,20 @@ func DeleteVendedor(w http.ResponseWriter, r *http.Request) {
 	var vendedor models.Vendedor
 	result := database.DB.Delete(&vendedor, id)
 	if result.Error != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Erro ao excluir o vendedor: %v", result.Error)
+		erro:= errors.New("Erro ao excluir o vendedor")
+		boom.BadImplementation(w, erro)
 		return
 	}
 
 	if result.RowsAffected == 0 {
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintf(w, "Vendedor não encontrado com o ID: %s", id)
+		erro:= errors.New("Vendedor não encontrado com este ID")
+		boom.NotFound(w, erro)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "vendedor excluído com sucesso")
+	sucesso:= CreateResposta("Vendedor excluído com sucesso!")
+	json.NewEncoder(w).Encode(sucesso)
 }
 
 func UpdateVendedor(w http.ResponseWriter, r *http.Request) {
@@ -105,35 +113,37 @@ func UpdateVendedor(w http.ResponseWriter, r *http.Request) {
 	var vendedor models.Vendedor
 	err := json.NewDecoder(r.Body).Decode(&vendedor)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Erro ao decodificar o corpo da requisição: %v", err)
+		erro:= errors.New("Erro ao decodificar o corpo da requisição")
+		boom.BadRequest(w, erro)
 		return
 	}
 
-	if vendedor.VendedorID == strconv.Itoa(0) {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprint(w, "ID do vendedor não fornecido ou inválido")
+	if vendedor.NomeVendedor == "" {
+		erro:= errors.New("O nome não deve ser vazio")
+		boom.BadRequest(w, erro)
 		return
 	}
 
 	result := database.DB.Model(&models.Vendedor{}).Where("vendedor_id = ?", id).Updates(&vendedor)
 	if result.Error != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Erro ao atualizar o vendedor no banco de dados: %v", result.Error)
+		erro:= errors.New("Erro ao atualizar o vendedor no banco de dados")
+		boom.BadImplementation(w, erro)
 		return
 	}
 
 	if result.RowsAffected == 0 {
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprint(w, "vendedor não encontrado")
+		erro:= errors.New("Vendedor não encontrado")
+		boom.NotFound(w, erro)
 		return
 	}
 
 	if err := codificarEmJson(w, vendedor); err != nil {
-		fmt.Fprintf(w, "Erro ao codificar vendedor em JSON: %v", err)
+		erro:= errors.New("Erro ao codificar o vendedor em JSON")
+		boom.BadRequest(w, erro)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "vendedor atualizado com sucesso!")
+	sucesso:= CreateResposta("Vendedor atualizado com sucesso!")
+	json.NewEncoder(w).Encode(sucesso)
 }

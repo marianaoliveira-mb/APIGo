@@ -2,12 +2,12 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
+	"errors"
 
+	"github.com/darahayes/go-boom"
 	"github.com/Matari73/APIGo/database"
 	"github.com/Matari73/APIGo/models"
 	"github.com/gorilla/mux"
@@ -16,18 +16,21 @@ import (
 func GetPedidos(w http.ResponseWriter, r *http.Request) {
 	var p []models.Pedido
 	if err := database.DB.Find(&p).Error; err != nil {
-		http.Error(w, "Erro ao buscar clientes: "+err.Error(), http.StatusInternalServerError)
+		erro:= errors.New("Erro ao buscar Pedidos")
+		boom.BadImplementation(w, erro)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(p); err != nil {
-		http.Error(w, "Erro ao codificar a resposta: "+err.Error(), http.StatusInternalServerError)
+		erro:= errors.New("Erro ao codificar a resposta")
+		boom.BadImplementation(w, erro)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	fmt.Println("Pedidos listados com sucesso!")
+	sucesso:= CreateResposta("Pedidos listados com sucesso!")
+	json.NewEncoder(w).Encode(sucesso)
 }
 func GetPedido(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
@@ -35,99 +38,103 @@ func GetPedido(w http.ResponseWriter, r *http.Request) {
 
 	var pedido models.Pedido
 	if err := database.DB.First(&pedido, id).Error; err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintf(w, "Pedido não encontrado")
+		erro:= errors.New("Pedido não encontrado")
+		boom.NotFound(w, erro)
 		return
 	}
 
 	if err := codificarEmJson(w, pedido); err != nil {
-		fmt.Fprintf(w, "Erro ao codificar o pedido em JSON: %v", err)
+		erro:= errors.New("Erro ao codificar o pedido em JSON")
+		boom.BadRequest(w, erro)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	fmt.Println("Pedido listado com sucesso!")
+	sucesso:= CreateResposta("Pedido listado com sucesso!")
+	json.NewEncoder(w).Encode(sucesso)
 }
 
 func CreatePedido(w http.ResponseWriter, r *http.Request) {
 	var novoPedido models.Pedido
 
 	if err := json.NewDecoder(r.Body).Decode(&novoPedido); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Erro ao ler o corpo da requisição: %v", err)
+		erro:= errors.New("Erro ao ler o corpo da requisição")
+		boom.BadRequest(w, erro)
 		return
 	}
 
 	novoPedido.DataPedido = time.Now()
-
 	saldoCliente, err := obterSaldoCliente(uint(novoPedido.ClienteID))
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Erro ao obter o saldo do cliente: %v", err)
+		erro:= errors.New("Erro ao obter o saldo do cliente")
+		boom.BadImplementation(w, erro)
 		return
 	}
 
 	clienteID := uint(novoPedido.ClienteID)
 	existeCliente, err := verificaClienteExistente(clienteID)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Erro ao verificar o cliente: %v", err)
+		erro:= errors.New("Erro ao verificar o cliente")
+		boom.BadImplementation(w, erro)
 		return
 	}
 
 	if !existeCliente {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprint(w, "ID do cliente inválido")
+		erro:= errors.New("ID do cliente inválido")
+		boom.BadRequest(w, erro)
 		return
 	}
 
 	vendedorID := uint(novoPedido.VendedorID)
 	existeVendedor, err := verificaVendedorExistente(vendedorID)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Erro ao verificar o Vendedor: %v", err)
+		erro:= errors.New("Erro ao verificar o Vendedor")
+		boom.BadImplementation(w, erro)
 		return
 	}
 
 	if !existeVendedor {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprint(w, "ID do vendedor inválido")
+		erro:= errors.New("ID do vendedor inválido")
+		boom.BadImplementation(w, erro)
 		return
 	}
 
 	if strings.ToUpper(novoPedido.StatusPedido) != "EM ANDAMENTO" &&
 		strings.ToUpper(novoPedido.StatusPedido) != "ENVIADO" &&
 		strings.ToUpper(novoPedido.StatusPedido) != "CONCLUIDO" {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Status inválido")
+		erro:= errors.New("Status inválido")
+		boom.BadRequest(w, erro)
 		return
 	}
 
 	if saldoCliente < novoPedido.ValorPedido {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprint(w, "Saldo do cliente insuficiente para o pedido")
+		erro:= errors.New("Saldo do cliente insuficiente para o pedido")
+		boom.BadRequest(w, erro)
+
 		return
 	}
 
 	if err := database.DB.Create(&novoPedido).Error; err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Erro ao criar o novo pedido: %v", err)
+		erro:= errors.New("Erro ao criar o novo pedido")
+		boom.BadImplementation(w, erro)
 		return
 	}
 
 	if err := atualizarSaldoCliente(uint(novoPedido.ClienteID), novoPedido.ValorPedido); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Erro ao atualizar o saldo do cliente: %v", err)
+		erro:= errors.New("Erro ao atualizar o saldo do cliente")
+		boom.BadImplementation(w, erro)
 		return
 	}
 
 	if err := codificarEmJson(w, novoPedido); err != nil {
-		fmt.Fprintf(w, "Erro ao codificar o pedido em JSON: %v", err)
+		erro:= errors.New("Erro ao codificar o pedido em JSON")
+		boom.BadRequest(w, erro)
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	fmt.Fprintf(w, "Pedido criado com sucesso")
+	sucesso:= CreateResposta("Pedido criado com sucesso!")
+	json.NewEncoder(w).Encode(sucesso)
 }
 
 func DeletePedido(w http.ResponseWriter, r *http.Request) {
@@ -137,19 +144,20 @@ func DeletePedido(w http.ResponseWriter, r *http.Request) {
 	var pedido models.Pedido
 	result := database.DB.Delete(&pedido, id)
 	if result.Error != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Erro ao excluir o pedido: %v", result.Error)
+		erro:= errors.New("Erro ao excluir o pedido")
+		boom.BadImplementation(w, erro)
 		return
 	}
 
 	if result.RowsAffected == 0 {
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintf(w, "Pedido não encontrado com o ID: %s", id)
+		erro:= errors.New("Pedido não encontrado com este ID")
+		boom.NotFound(w, erro)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "Pedido excluído com sucesso!")
+	sucesso:= CreateResposta("Pedido excluído com sucesso!")
+	json.NewEncoder(w).Encode(sucesso)
 }
 
 func UpdatePedido(w http.ResponseWriter, r *http.Request) {
@@ -159,34 +167,31 @@ func UpdatePedido(w http.ResponseWriter, r *http.Request) {
 	var pedido models.Pedido
 	err := json.NewDecoder(r.Body).Decode(&pedido)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Erro ao decodificar o corpo da requisição: %v", err)
-		return
-	}
-
-	if pedido.PedidoID == strconv.Itoa(0) {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprint(w, "ID do pedido não fornecido ou inválido")
+		erro:= errors.New("Erro ao decodificar o corpo da requisição")
+		boom.BadRequest(w, erro)
+		
 		return
 	}
 
 	result := database.DB.Model(&models.Pedido{}).Where("pedido_id = ?", id).Updates(&pedido)
 	if result.Error != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Erro ao atualizar o pedido no banco de dados: %v", result.Error)
+		erro:= errors.New("Erro ao atualizar o pedido no banco de dados")
+		boom.BadImplementation(w, erro)
 		return
 	}
 
 	if result.RowsAffected == 0 {
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprint(w, "pedido não encontrado")
+		erro:= errors.New("Pedido não encontrado")
+		boom.NotFound(w, erro)
 		return
 	}
 
 	if err := codificarEmJson(w, pedido); err != nil {
-		fmt.Fprintf(w, "Erro ao codificar o pedido em JSON: %v", err)
+		erro:= errors.New("Erro ao codificar o pedido em JSON")
+		boom.BadRequest(w, erro)
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "Pedido atualizado com sucesso!")
+	sucesso:= CreateResposta("Pedido atualizado com sucesso!")
+	json.NewEncoder(w).Encode(sucesso)
 }

@@ -2,10 +2,10 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
-	"strconv"
+	"errors"
 
+	"github.com/darahayes/go-boom"
 	"github.com/Matari73/APIGo/database"
 	"github.com/Matari73/APIGo/models"
 	"github.com/gorilla/mux"
@@ -14,18 +14,18 @@ import (
 func GetClientes(w http.ResponseWriter, r *http.Request) {
 	var c []models.Cliente
 	if err := database.DB.Find(&c).Error; err != nil {
-		http.Error(w, "Erro ao buscar clientes: "+err.Error(), http.StatusInternalServerError)
+		
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(c); err != nil {
-		http.Error(w, "Erro ao codificar a resposta: "+err.Error(), http.StatusInternalServerError)
+		erro:= errors.New("Erro ao codificar a resposta")
+		boom.BadImplementation(w, erro)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	fmt.Println("Clientes listados com sucesso!")
 }
 
 func GetCliente(w http.ResponseWriter, r *http.Request) {
@@ -34,54 +34,58 @@ func GetCliente(w http.ResponseWriter, r *http.Request) {
 	var cliente models.Cliente
 
 	if err := database.DB.First(&cliente, id).Error; err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintf(w, "Cliente não encontrado")
+		erro:= errors.New("Cliente não encontrado")
+		boom.NotFound(w, erro)
 		return
 	}
 
 	if err := codificarEmJson(w, cliente); err != nil {
-		fmt.Fprintf(w, "Erro ao codificar o cliente em JSON: %v", err)
+		erro:= errors.New("Erro ao codificar o cliente em JSON")
+		boom.BadRequest(w, erro)
 		return
-	}
-
+	} 
+	
 	w.WriteHeader(http.StatusOK)
-	fmt.Println("Cliente listado com sucesso!")
+	sucesso:= CreateResposta("Cliente listado com sucesso!")
+	json.NewEncoder(w).Encode(sucesso)
 }
 
 func CreateCliente(w http.ResponseWriter, r *http.Request) {
 	var novoCliente models.Cliente
 
 	if err := json.NewDecoder(r.Body).Decode(&novoCliente); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Erro ao ler o corpo da requisição: %v", err)
+		erro:= errors.New("Erro ao ler o corpo da requisição")
+		boom.BadRequest(w, erro)
 		return
 	}
 
 	if novoCliente.NomeCliente == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "O nome não deve ser vazio")
+		erro:= errors.New("O nome não deve ser vazio")
+		boom.BadRequest(w, erro)
 		return
 	}
 
 	if len(novoCliente.TelefoneCliente) < 10 || len(novoCliente.TelefoneCliente) > 12 {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "O telefone deve ter entre 10 e 12 caracteres")
+		erro:= errors.New("O telefone deve ter entre 10 e 12 caracteres")
+		boom.BadRequest(w, erro)
 		return
 	}
 
 	if err := database.DB.Create(&novoCliente).Error; err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Erro ao criar o novo cliente: %v", err)
+		erro:= errors.New("Erro ao criar o novo cliente")
+		boom.BadImplementation(w, erro)
 		return
 	}
 
 	if err := codificarEmJson(w, novoCliente); err != nil {
-		fmt.Fprintf(w, "Erro ao codificar o cliente em JSON: %v", err)
+		erro:= errors.New("Erro ao codificar o cliente em JSON")
+		boom.BadRequest(w, erro)
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	fmt.Fprintf(w, "Cliente criado com sucesso!")
+	sucesso:= CreateResposta("Cliente criado com sucesso!")
+	json.NewEncoder(w).Encode(sucesso)
 }
 
 func DeleteCliente(w http.ResponseWriter, r *http.Request) {
@@ -91,19 +95,20 @@ func DeleteCliente(w http.ResponseWriter, r *http.Request) {
 	var cliente models.Cliente
 	result := database.DB.Delete(&cliente, id)
 	if result.Error != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Erro ao excluir o cliente: %v", result.Error)
+		erro:= errors.New("Erro ao excluir o cliente")
+		boom.BadImplementation(w, erro)
 		return
 	}
 
 	if result.RowsAffected == 0 {
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintf(w, "Cliente não encontrado com o ID: %s", id)
+		erro:= errors.New("Cliente não encontrado com este ID")
+		boom.NotFound(w, erro)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "Cliente excluído com sucesso!")
+	sucesso:= CreateResposta("Cliente excluído com sucesso!")
+	json.NewEncoder(w).Encode(sucesso)
 }
 
 func UpdateCliente(w http.ResponseWriter, r *http.Request) {
@@ -113,35 +118,43 @@ func UpdateCliente(w http.ResponseWriter, r *http.Request) {
 	var cliente models.Cliente
 	err := json.NewDecoder(r.Body).Decode(&cliente)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Erro ao decodificar o corpo da requisição: %v", err)
+		erro:= errors.New("Erro ao decodificar o corpo da requisição")
+		boom.BadRequest(w, erro)
+		return
+	}
+	
+	if cliente.NomeCliente == "" {
+		erro:= errors.New("O nome não deve ser vazio")
+		boom.BadRequest(w, erro)
 		return
 	}
 
-	if cliente.ClienteID == strconv.Itoa(0) {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprint(w, "ID do cliente não fornecido ou inválido")
+	if len(cliente.TelefoneCliente) < 10 || len(cliente.TelefoneCliente) > 12 {
+		erro:= errors.New("O telefone deve ter entre 10 e 12 caracteres")
+		boom.BadRequest(w, erro)
 		return
 	}
 
 	result := database.DB.Model(&models.Cliente{}).Where("cliente_id = ?", id).Updates(&cliente)
 	if result.Error != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Erro ao atualizar o cliente no banco de dados: %v", result.Error)
+		erro:= errors.New("Erro ao atualizar o cliente no banco de dados")
+		boom.BadImplementation(w, erro)
 		return
 	}
 
 	if result.RowsAffected == 0 {
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprint(w, "Cliente não encontrado")
+		erro:= errors.New("Cliente não encontrado")
+		boom.NotFound(w, erro)
 		return
 	}
 
 	if err := codificarEmJson(w, cliente); err != nil {
-		fmt.Fprintf(w, "Erro ao codificar o cliente em JSON: %v", err)
+		erro:= errors.New("Erro ao codificar o cliente em JSON")
+		boom.BadRequest(w, erro)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "Cliente atualizado com sucesso!")
+	sucesso:= CreateResposta("Cliente atualizado com sucesso!")
+	json.NewEncoder(w).Encode(sucesso)
 }
