@@ -14,7 +14,8 @@ import (
 func GetClientes(w http.ResponseWriter, r *http.Request) {
 	var c []models.Cliente
 	if err := database.DB.Find(&c).Error; err != nil {
-		
+		erro:= errors.New("Erro ao buscar clientes")
+		boom.BadImplementation(w, erro)
 		return
 	}
 
@@ -24,8 +25,6 @@ func GetClientes(w http.ResponseWriter, r *http.Request) {
 		boom.BadImplementation(w, erro)
 		return
 	}
-
-	w.WriteHeader(http.StatusOK)
 }
 
 func GetCliente(w http.ResponseWriter, r *http.Request) {
@@ -44,10 +43,6 @@ func GetCliente(w http.ResponseWriter, r *http.Request) {
 		boom.BadRequest(w, erro)
 		return
 	} 
-	
-	w.WriteHeader(http.StatusOK)
-	sucesso:= CreateResposta("Cliente listado com sucesso!")
-	json.NewEncoder(w).Encode(sucesso)
 }
 
 func CreateCliente(w http.ResponseWriter, r *http.Request) {
@@ -79,13 +74,9 @@ func CreateCliente(w http.ResponseWriter, r *http.Request) {
 
 	if err := codificarEmJson(w, novoCliente); err != nil {
 		erro:= errors.New("Erro ao codificar o cliente em JSON")
-		boom.BadRequest(w, erro)
+		boom.BadImplementation(w, erro)
 		return
 	}
-
-	w.WriteHeader(http.StatusCreated)
-	sucesso:= CreateResposta("Cliente criado com sucesso!")
-	json.NewEncoder(w).Encode(sucesso)
 }
 
 func DeleteCliente(w http.ResponseWriter, r *http.Request) {
@@ -153,8 +144,4 @@ func UpdateCliente(w http.ResponseWriter, r *http.Request) {
 		boom.BadRequest(w, erro)
 		return
 	}
-
-	w.WriteHeader(http.StatusOK)
-	sucesso:= CreateResposta("Cliente atualizado com sucesso!")
-	json.NewEncoder(w).Encode(sucesso)
 }

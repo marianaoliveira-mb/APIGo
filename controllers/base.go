@@ -29,13 +29,3 @@ func CreateResposta(mensagem string) Resposta {
 		Mensagem: mensagem,
 	}
 }
-
-// type Error struct{
-// 	Error string `json:"error"`
-// }
-
-// func CreateRespostaErro(err string)ErrorResposta{
-// 	return ErrorResposta{
-// 		Error: err,
-// 	}
-// }

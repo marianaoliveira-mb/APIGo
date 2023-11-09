@@ -27,10 +27,6 @@ func GetPedidos(w http.ResponseWriter, r *http.Request) {
 		boom.BadImplementation(w, erro)
 		return
 	}
-
-	w.WriteHeader(http.StatusOK)
-	sucesso:= CreateResposta("Pedidos listados com sucesso!")
-	json.NewEncoder(w).Encode(sucesso)
 }
 func GetPedido(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
@@ -48,10 +44,6 @@ func GetPedido(w http.ResponseWriter, r *http.Request) {
 		boom.BadRequest(w, erro)
 		return
 	}
-
-	w.WriteHeader(http.StatusOK)
-	sucesso:= CreateResposta("Pedido listado com sucesso!")
-	json.NewEncoder(w).Encode(sucesso)
 }
 
 func CreatePedido(w http.ResponseWriter, r *http.Request) {
@@ -110,7 +102,6 @@ func CreatePedido(w http.ResponseWriter, r *http.Request) {
 	if saldoCliente < novoPedido.ValorPedido {
 		erro:= errors.New("Saldo do cliente insuficiente para o pedido")
 		boom.BadRequest(w, erro)
-
 		return
 	}
 
@@ -131,10 +122,6 @@ func CreatePedido(w http.ResponseWriter, r *http.Request) {
 		boom.BadRequest(w, erro)
 		return
 	}
-
-	w.WriteHeader(http.StatusCreated)
-	sucesso:= CreateResposta("Pedido criado com sucesso!")
-	json.NewEncoder(w).Encode(sucesso)
 }
 
 func DeletePedido(w http.ResponseWriter, r *http.Request) {
@@ -169,7 +156,6 @@ func UpdatePedido(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		erro:= errors.New("Erro ao decodificar o corpo da requisição")
 		boom.BadRequest(w, erro)
-		
 		return
 	}
 
@@ -188,10 +174,7 @@ func UpdatePedido(w http.ResponseWriter, r *http.Request) {
 
 	if err := codificarEmJson(w, pedido); err != nil {
 		erro:= errors.New("Erro ao codificar o pedido em JSON")
-		boom.BadRequest(w, erro)
+		boom.BadImplementation(w, erro)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
-	sucesso:= CreateResposta("Pedido atualizado com sucesso!")
-	json.NewEncoder(w).Encode(sucesso)
 }

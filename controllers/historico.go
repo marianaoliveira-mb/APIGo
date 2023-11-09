@@ -145,7 +145,13 @@ type HistoricoCompraStru struct {
 }
 
 func HistoricoCompras(w http.ResponseWriter, r *http.Request) {
-	clienteIDStr := mux.Vars(r)["cliente_id"]
+	vars:= mux.Vars(r)
+	clienteIDStr , ok := vars["cliente_id"]
+	if !ok {
+		http.Error(w, "ID do cliente não encontrado na URL", http.StatusBadRequest)
+		return
+	}
+
 	clienteID, err := strconv.Atoi(clienteIDStr)
 	if err != nil {
 		http.Error(w, "ID do cliente inválido", http.StatusBadRequest)

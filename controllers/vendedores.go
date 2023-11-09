@@ -25,9 +25,6 @@ func GetVendedores(w http.ResponseWriter, r *http.Request) {
 		boom.BadImplementation(w, erro)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
-	sucesso:= CreateResposta("Vendedores listados com sucesso!")
-	json.NewEncoder(w).Encode(sucesso)
 }
 
 func GetVendedor(w http.ResponseWriter, r *http.Request) {
@@ -46,10 +43,6 @@ func GetVendedor(w http.ResponseWriter, r *http.Request) {
 		boom.BadRequest(w, erro)
 		return
 	}
-
-	w.WriteHeader(http.StatusOK)
-	sucesso:= CreateResposta("Vendedor listado com sucesso!")
-	json.NewEncoder(w).Encode(sucesso)
 }
 
 func CreateVendedor(w http.ResponseWriter, r *http.Request) {
@@ -74,13 +67,9 @@ func CreateVendedor(w http.ResponseWriter, r *http.Request) {
 
 	if err := codificarEmJson(w, novoVendedor); err != nil {
 		erro:= errors.New("Erro ao codificar o vendedor em JSON")
-		boom.BadRequest(w, erro)
+		boom.BadImplementation(w, erro)
 		return
 	}
-
-	w.WriteHeader(http.StatusCreated)
-	sucesso:= CreateResposta("Vendedor criado com sucesso!")
-	json.NewEncoder(w).Encode(sucesso)
 }
 
 func DeleteVendedor(w http.ResponseWriter, r *http.Request) {
@@ -142,8 +131,4 @@ func UpdateVendedor(w http.ResponseWriter, r *http.Request) {
 		boom.BadRequest(w, erro)
 		return
 	}
-
-	w.WriteHeader(http.StatusOK)
-	sucesso:= CreateResposta("Vendedor atualizado com sucesso!")
-	json.NewEncoder(w).Encode(sucesso)
 }

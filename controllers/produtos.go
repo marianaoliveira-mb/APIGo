@@ -26,10 +26,6 @@ func GetProdutos(w http.ResponseWriter, r *http.Request) {
 		boom.BadImplementation(w, erro)
 		return
 	}
-
-	w.WriteHeader(http.StatusOK)
-	sucesso:= CreateResposta("Produtos listados com sucesso!")
-	json.NewEncoder(w).Encode(sucesso)
 }
 
 func GetProduto(w http.ResponseWriter, r *http.Request) {
@@ -48,9 +44,6 @@ func GetProduto(w http.ResponseWriter, r *http.Request) {
 		boom.BadRequest(w, erro)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
-	sucesso:= CreateResposta("Produto listado com sucesso!")
-	json.NewEncoder(w).Encode(sucesso)
 }
 
 func CreateProduto(w http.ResponseWriter, r *http.Request) {
@@ -95,13 +88,9 @@ func CreateProduto(w http.ResponseWriter, r *http.Request) {
 
 	if err := codificarEmJson(w, novoProduto); err != nil {
 		erro:= errors.New("Erro ao codificar o cliente em JSON")
-		boom.BadRequest(w, erro)
+		boom.BadImplementation(w, erro)
 		return
 	}
-
-	w.WriteHeader(http.StatusCreated)
-	sucesso:= CreateResposta("Produto criado com sucesso!")
-	json.NewEncoder(w).Encode(sucesso)
 }
 
 func DeleteProduto(w http.ResponseWriter, r *http.Request) {
@@ -123,8 +112,8 @@ func DeleteProduto(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	sucesso:= CreateResposta("Produto excluído com sucesso!")
+	w.WriteHeader(http.StatusCreated)
+	sucesso:= CreateResposta("Produto excluido com sucesso!")
 	json.NewEncoder(w).Encode(sucesso)
 }
 
@@ -173,11 +162,7 @@ func UpdateProduto(w http.ResponseWriter, r *http.Request) {
 
 	if err := codificarEmJson(w, produto); err != nil {
 		erro:= errors.New("Erro ao codificar o produto em JSON")
-		boom.BadRequest(w, erro)
+		boom.BadImplementation(w, erro)
 		return
 	}
-
-	w.WriteHeader(http.StatusOK)
-	sucesso:= CreateResposta("Produto atualizado com sucesso!")
-	json.NewEncoder(w).Encode(sucesso)
 }

@@ -13,5 +13,6 @@ func main() {
 	database.ConectaComBancoDeDados()
 	fmt.Println("Iniciando o servidor com Go")
 	r := routes.HandleResquest()
+	
 	log.Fatal(http.ListenAndServe(":8000", r))
 }
