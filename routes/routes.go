@@ -2,14 +2,16 @@ package routes
 
 import (
 	"net/http"
-
+	"log"
+	"github.com/rs/cors"
 	"github.com/Matari73/APIGo/controllers"
 	"github.com/gorilla/mux"
+
 )
 
-func HandleResquest() *mux.Router {
+func HandleRequest(){
 	r := mux.NewRouter()
-	http.HandleFunc("/", controllers.Home)
+	r.HandleFunc("/", controllers.Home)
 
 	//rotas produtos
 	r.HandleFunc("/api/produtos", controllers.GetProdutos).Methods("Get")
@@ -45,5 +47,13 @@ func HandleResquest() *mux.Router {
 	r.HandleFunc("/api/vendedores/{vendedor_id}/historico_vendas", controllers.HistoricoVendasVendedor).Methods("GET")
 	r.HandleFunc("/api/historico-geral", controllers.HistoricoGeral).Methods("GET")
 
-	return r
+	c := cors.New(cors.Options{
+        AllowedOrigins: []string{"*"},
+        AllowCredentials: true,
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+    })
+
+    handler := c.Handler(r)
+
+	log.Fatal(http.ListenAndServe(":8000", handler))
 }

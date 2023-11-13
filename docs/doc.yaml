@@ -1,0 +1,860 @@
+openapi: 3.0.1
+info:
+  title: API Order CRUD
+  description: API para simular ordens de compra e venda de uma loja.
+  version: 0.0.1
+  contact:
+    name: contato
+    email: mariana.oliveira@mb.com.br
+servers:
+  - url: http://localhost:8000
+    description: API
+paths:
+  /api/produtos:
+    get:
+      summary: Recupera todos os produtos cadastrados
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Produto'
+        '500':
+          description: >-
+            Indica que o servidor encontrou uma condição inesperada e que o
+            impediu de atender à solicitação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+    post:
+      summary: Cria um novo produto
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProdPostPut'
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Produto'
+        '400':
+          description: >-
+            O servidor não irá processar a requisição devido a alguma coisa que
+            foi entendida como um erro do cliente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '500':
+          description: >-
+            Indica que o servidor encontrou uma condição inesperada e que o
+            impediu de atender à solicitação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+  /api/produtos/{id}:
+    get:
+      summary: Recupera um produto pelo ID
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          required: true
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Produto'
+        '400':
+          description: >-
+            O servidor não irá processar a requisição devido a alguma coisa que
+            foi entendida como um erro do cliente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '404':
+          description: Produto não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+    delete:
+      summary: Deleta um produto pelo ID
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          required: true
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          description: Produto não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '500':
+          description: >-
+            Indica que o servidor encontrou uma condição inesperada e que o
+            impediu de atender à solicitação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+    put:
+      summary: Atualiza um produto pelo ID
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProdPostPut'
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Produto'
+        '400':
+          description: >-
+            O servidor não irá processar a requisição devido a alguma coisa que
+            foi entendida como um erro do cliente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '404':
+          description: Produto não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '500':
+          description: >-
+            Indica que o servidor encontrou uma condição inesperada e que o
+            impediu de atender à solicitação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+  /api/clientes:
+    get:
+      summary: Recupera todos os clientes cadastrados
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cliente'
+        '500':
+          description: >-
+            Indica que o servidor encontrou uma condição inesperada e que o
+            impediu de atender à solicitação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+    post:
+      summary: Cria um novo cliente
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientePostPut'
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cliente'
+        '400':
+          description: >-
+            O servidor não irá processar a requisição devido a alguma coisa que
+            foi entendida como um erro do cliente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '500':
+          description: >-
+            Indica que o servidor encontrou uma condição inesperada e que o
+            impediu de atender à solicitação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+  /api/clientes/{id}:
+    get:
+      summary: Recupera um cliente pelo ID
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          required: true
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cliente'
+        '400':
+          description: >-
+            O servidor não irá processar a requisição devido a alguma coisa que
+            foi entendida como um erro do cliente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '404':
+          description: Cliente não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+    delete:
+      summary: Deleta um cliente pelo ID
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          required: true
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          description: cliente não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '500':
+          description: >-
+            Indica que o servidor encontrou uma condição inesperada e que o
+            impediu de atender à solicitação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+    put:
+      summary: Atualiza um cliente pelo ID
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientePostPut'
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cliente'
+        '400':
+          description: >-
+            O servidor não irá processar a requisição devido a alguma coisa que
+            foi entendida como um erro do cliente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '404':
+          description: Cliente não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '500':
+          description: >-
+            Indica que o servidor encontrou uma condição inesperada e que o
+            impediu de atender à solicitação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+  /api/vendedores:
+    get:
+      summary: Recupera todos os vendedores cadastrados
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendedor'
+        '500':
+          description: >-
+            Indica que o servidor encontrou uma condição inesperada e que o
+            impediu de atender à solicitação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+    post:
+      summary: Cria um novo produto
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VendedorPostPut'
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendedor'
+        '400':
+          description: >-
+            O servidor não irá processar a requisição devido a alguma coisa que
+            foi entendida como um erro do cliente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '500':
+          description: >-
+            Indica que o servidor encontrou uma condição inesperada e que o
+            impediu de atender à solicitação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+  /api/vendedores/{id}:
+    get:
+      summary: Recupera um vendedor pelo ID
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          required: true
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendedor'
+        '400':
+          description: >-
+            O servidor não irá processar a requisição devido a alguma coisa que
+            foi entendida como um erro do cliente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '404':
+          description: Vendedor não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+    delete:
+      summary: Deleta um vendedor pelo ID
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          required: true
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          description: vendedor não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '500':
+          description: >-
+            Indica que o servidor encontrou uma condição inesperada e que o
+            impediu de atender à solicitação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+    put:
+      summary: Atualiza um vendedor pelo ID
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VendedorPostPut'
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendedor'
+        '400':
+          description: >-
+            O servidor não irá processar a requisição devido a alguma coisa que
+            foi entendida como um erro do cliente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '404':
+          description: Vendedor não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '500':
+          description: >-
+            Indica que o servidor encontrou uma condição inesperada e que o
+            impediu de atender à solicitação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+  /api/pedidos:
+    get:
+      summary: Recupera todos os pedidos cadastrados
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pedido'
+        '500':
+          description: >-
+            Indica que o servidor encontrou uma condição inesperada e que o
+            impediu de atender à solicitação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+    post:
+      summary: Cria um novo pedido
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PedidoPostPut'
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pedido'
+        '400':
+          description: >-
+            O servidor não irá processar a requisição devido a alguma coisa que
+            foi entendida como um erro do cliente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '500':
+          description: >-
+            Indica que o servidor encontrou uma condição inesperada e que o
+            impediu de atender à solicitação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+  /api/pedidos/{id}:
+    get:
+      summary: Recupera um pedido pelo ID
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          required: true
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pedido'
+        '400':
+          description: >-
+            O servidor não irá processar a requisição devido a alguma coisa que
+            foi entendida como um erro do cliente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '404':
+          description: Produto não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+    delete:
+      summary: Deleta um pedido pelo ID
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          required: true
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          description: Pedido não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '500':
+          description: >-
+            Indica que o servidor encontrou uma condição inesperada e que o
+            impediu de atender à solicitação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+    put:
+      summary: Atualiza um pedido pelo ID
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PedidoPostPut'
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pedido'
+        '400':
+          description: >-
+            O servidor não irá processar a requisição devido a alguma coisa que
+            foi entendida como um erro do cliente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '404':
+          description: Pedido não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '500':
+          description: >-
+            Indica que o servidor encontrou uma condição inesperada e que o
+            impediu de atender à solicitação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+  /api/adicionar-produto-pedido:
+    post:
+      summary: Insere um produto ao pedido
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Produto_pedido_postput'
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Produto_pedido'
+        '400':
+          description: >-
+            O servidor não irá processar a requisição devido a alguma coisa que
+            foi entendida como um erro do cliente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '500':
+          description: >-
+            Indica que o servidor encontrou uma condição inesperada e que o
+            impediu de atender à solicitação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+  /api/clientes/{id}/historico_compras:
+    get:
+      summary: Recupera o histórico de pedidos de um cliente pelo ID
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          required: true
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Produto_pedido'
+        '400':
+          description: >-
+            O servidor não irá processar a requisição devido a alguma coisa que
+            foi entendida como um erro do cliente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '404':
+          description: Cliente não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '500':
+          description: >-
+            Indica que o servidor encontrou uma condição inesperada e que o
+            impediu de atender à solicitação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+  /api/vendedores/{id}/historico_vendas:
+    get:
+      summary: Recupera o histórico de vendas de um vendedor pelo ID
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          required: true
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Produto_pedido'
+        '400':
+          description: >-
+            O servidor não irá processar a requisição devido a alguma coisa que
+            foi entendida como um erro do cliente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '404':
+          description: Vendedor não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+        '500':
+          description: >-
+            Indica que o servidor encontrou uma condição inesperada e que o
+            impediu de atender à solicitação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+  /api/historico-geral:
+    get:
+      summary: Recupera o histórico de vendas de um vendedor pelo ID
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Produto_pedido'
+        '500':
+          description: >-
+            Indica que o servidor encontrou uma condição inesperada e que o
+            impediu de atender à solicitação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erro'
+components:
+  schemas:
+    Erro:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        statusCode:
+          type: number
+    Produto:
+      type: object
+      properties:
+        produto_id:
+          type: string
+        nome_produto:
+          type: string
+        valor_produto:
+          type: number
+        estoque:
+          type: number
+    ProdPostPut:
+      type: object
+      properties:
+        nome_produto:
+          type: string
+        valor_produto:
+          type: number
+        estoque:
+          type: number
+    Cliente:
+      type: object
+      properties:
+        cliente_id:
+          type: string
+        nome_cliente:
+          type: string
+        telefone_cliente:
+          type: string
+        saldo:
+          type: number
+    ClientePostPut:
+      type: object
+      properties:
+        nome_cliente:
+          type: string
+        telefone_cliente:
+          type: string
+        saldo:
+          type: number
+    Vendedor:
+      type: object
+      properties:
+        vendedor_id:
+          type: string
+        nome_vendedor:
+          type: string
+    VendedorPostPut:
+      type: object
+      properties:
+        nome_vendedor:
+          type: string
+    Pedido:
+      type: object
+      properties:
+        pedido_id:
+          type: string
+        data_pedido:
+          type: string
+        status_pedido:
+          type: string
+        valor_pedido:
+          type: number
+        cliente_id:
+          type: number
+        vendedor_id:
+          type: number
+        produtos:
+          type: object
+    PedidoPostPut:
+      type: object
+      properties:
+        status_pedido:
+          type: string
+        valor_pedido:
+          type: number
+        cliente_id:
+          type: number
+        vendedor_id:
+          type: number
+    Produto_pedido:
+      type: object
+      properties:
+        pedido_id:
+          type: number
+        data_pedido:
+          type: string
+        status_pedido:
+          type: string
+        valor_pedido:
+          type: number
+        produtos:
+          type: array
+          items:
+            $ref: '#/components/schemas/Produto'
+    Produto_pedido_postput:
+      type: object
+      properties:
+        pedido_id:
+          type: number
+        produto_id:
+          type: number
+        quantidade:
+          type: number

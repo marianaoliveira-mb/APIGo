@@ -13,6 +13,9 @@ import (
 
 //produtos
 func GetProdutos(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods","*")
+
 	var p []models.Produto
 	if err := database.DB.Find(&p).Error; err != nil {
 		erro:= errors.New("Erro ao buscar produtos")
@@ -29,6 +32,8 @@ func GetProdutos(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetProduto(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods","*")
 	vars := mux.Vars(r)
 	id := vars["id"]
 	var produto models.Produto
@@ -47,6 +52,8 @@ func GetProduto(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateProduto(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods","*")
 	var novoProduto models.Produto
 	if err := json.NewDecoder(r.Body).Decode(&novoProduto); err != nil {
 		erro:= errors.New("Erro ao ler o corpo da requisição")
@@ -94,6 +101,7 @@ func CreateProduto(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteProduto(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	vars := mux.Vars(r)
 	id := vars["id"]
 
@@ -118,6 +126,7 @@ func DeleteProduto(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateProduto(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	vars := mux.Vars(r)
 	id := vars["id"]
 
