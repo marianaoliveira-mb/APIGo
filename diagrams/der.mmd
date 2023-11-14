@@ -1,0 +1,43 @@
+---
+title: Entity Relationship Diagram Order CRUD
+---
+erDiagram
+    Cliente{
+        String id_cliente PK
+        String nome_cliente
+        String telefone_cliente
+        Float saldo
+    }
+
+    Vendedor{
+        String id_vendedor PK
+        String nome_vendedor
+    }
+
+    Pedido{
+        String id_pedido PK
+        Date data_pedido
+        String status_pedido
+        Float valor_pedido
+        Int id_cliente FK
+        Int id_vendedor FK
+        Array produtos 
+    }
+
+    Produto{
+        String produto_id PK
+        String nome_produto
+        Float valor_produto
+        Int estoque
+    }
+
+    ProdutoPedido{
+        Int id_pedido FK
+        Int produto_id FK
+        Int quantidade
+    }
+
+    Cliente ||--o{ Pedido : Faz
+    Vendedor ||--|{ Pedido : Vende
+    Pedido ||--|{ ProdutoPedido : AdicionaProduto
+    Produto ||--o{ ProdutoPedido : AdicionadoAoPedido

@@ -1,0 +1,22 @@
+---
+title: Sequence Diagram Order CRUD
+---
+
+sequenceDiagram
+    participant Cliente
+    participant Vendedor
+    participant Pedido
+    participant Produto
+    participant BD
+
+    Cliente->>Vendedor: Pedido de Compra
+    Vendedor->>Pedido: Cria Pedido
+    Pedido-->>BD: Verifica Disponibilidade de Produtos
+    Pedido->>Produto: Consulta Detalhes do Produto
+    Produto-->>Pedido: Retorna Informações do Produto
+    Pedido->>Pedido: Adiciona Produto ao Pedido
+    Vendedor->>Pedido: Finaliza Pedido
+    Pedido-->>BD: Atualiza Status no Banco de Dados
+    BD-->>Pedido: Confirmação de Atualização
+    Pedido-->>Cliente: Confirmação de Compra
+    Cliente--x Vendedor: Fim da Transação

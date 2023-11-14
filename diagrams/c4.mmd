@@ -1,0 +1,24 @@
+    C4Context
+      title System Context diagram for Internet Banking System
+      Enterprise_Boundary(b0, "Order CRUD") {
+        Person(customerA, "Cliente", "Cliente que deseja fazer um pedido")
+        Person(customerB, "Vendedor")
+        System(SystemAA, "Order CRUD System", "Sistema da aplicação")
+
+
+        Enterprise_Boundary(b1, "API") {
+          SystemDb_Ext(SystemBB, "API", "Executa as funcionalidades do sistema através de requisições via JSON/HTTP")
+
+          Boundary(b2, "Banco") {
+            SystemDb_Ext(SystemCC, "DataBase", "Armazena os dados do sistema")
+          }
+        }
+      }
+
+      BiRel(customerA, customerB, "Pede")
+      BiRel(customerB, SystemAA, "Abre chamado")
+      BiRel(SystemAA, SystemBB, "Faz requisição")
+      BiRel(SystemBB, SystemCC, "Verifica os dados necessários")
+      BiRel(SystemCC, SystemBB, "Retorna a verificação")
+      BiRel(SystemBB, SystemAA, "Retorna o resultado da requisição")
+      BiRel(SystemAA, customerA, "Retorna o resultado para o cliente")
