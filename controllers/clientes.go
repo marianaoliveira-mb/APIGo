@@ -8,6 +8,7 @@ import (
 	"github.com/darahayes/go-boom"
 	"github.com/Matari73/APIGo/database"
 	"github.com/Matari73/APIGo/models"
+	"github.com/Matari73/APIGo/validators"
 	"github.com/gorilla/mux"
 )
 
@@ -54,15 +55,8 @@ func CreateCliente(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if novoCliente.NomeCliente == "" {
-		erro:= errors.New("O nome não deve ser vazio")
-		boom.BadRequest(w, erro)
-		return
-	}
-
-	if len(novoCliente.TelefoneCliente) < 10 || len(novoCliente.TelefoneCliente) > 12 {
-		erro:= errors.New("O telefone deve ter entre 10 e 12 caracteres")
-		boom.BadRequest(w, erro)
+	if err:= validators.ValidateTelNome(novoCliente); err != nil {
+		boom.BadRequest(w, err)
 		return
 	}
 
@@ -82,8 +76,8 @@ func CreateCliente(w http.ResponseWriter, r *http.Request) {
 func DeleteCliente(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
-
 	var cliente models.Cliente
+	
 	result := database.DB.Delete(&cliente, id)
 	if result.Error != nil {
 		erro:= errors.New("Erro ao excluir o cliente")
@@ -114,15 +108,8 @@ func UpdateCliente(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	
-	if cliente.NomeCliente == "" {
-		erro:= errors.New("O nome não deve ser vazio")
-		boom.BadRequest(w, erro)
-		return
-	}
-
-	if len(cliente.TelefoneCliente) < 10 || len(cliente.TelefoneCliente) > 12 {
-		erro:= errors.New("O telefone deve ter entre 10 e 12 caracteres")
-		boom.BadRequest(w, erro)
+	if err:= validators.ValidateTelNome(cliente); err != nil {
+		boom.BadRequest(w, err)
 		return
 	}
 

@@ -8,6 +8,7 @@ import (
 	"github.com/darahayes/go-boom"
 	"github.com/Matari73/APIGo/database"
 	"github.com/Matari73/APIGo/models"
+	"github.com/Matari73/APIGo/validators"
 	"github.com/gorilla/mux"
 )
 
@@ -53,9 +54,9 @@ func CreateVendedor(w http.ResponseWriter, r *http.Request) {
 		boom.BadRequest(w, erro)
 		return
 	}
-	if novoVendedor.NomeVendedor == "" {
-		erro:= errors.New("O nome não deve ser vazio")
-		boom.BadRequest(w, erro)
+	
+	if err:= validators.ValidateNome(novoVendedor); err != nil {
+		boom.BadRequest(w, err)
 		return
 	}
 
@@ -107,9 +108,8 @@ func UpdateVendedor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if vendedor.NomeVendedor == "" {
-		erro:= errors.New("O nome não deve ser vazio")
-		boom.BadRequest(w, erro)
+	if err:= validators.ValidateNome(vendedor); err != nil {
+		boom.BadRequest(w, err)
 		return
 	}
 
