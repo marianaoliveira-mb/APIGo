@@ -9,21 +9,19 @@ import (
 	"github.com/Matari73/APIGo/database"
 	"github.com/Matari73/APIGo/models"
 	"github.com/Matari73/APIGo/validators"
+	"github.com/Matari73/APIGo/adapters/clientes"
 	"github.com/gorilla/mux"
 )
 
 func GetClientes(w http.ResponseWriter, r *http.Request) {
-	var c []models.Cliente
-	if err := database.DB.Find(&c).Error; err != nil {
-		erro:= errors.New("Erro ao buscar clientes")
-		boom.BadImplementation(w, erro)
+	clientes , err := adapters.BuscarClientes()
+	if err != nil {
+		boom.BadImplementation(w, err)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(c); err != nil {
-		erro:= errors.New("Erro ao codificar a resposta")
-		boom.BadImplementation(w, erro)
+	if err := adapters.CodificarResposta(w, clientes) ; err != nil {
+		boom.BadImplementation(w, err)
 		return
 	}
 }
@@ -31,15 +29,14 @@ func GetClientes(w http.ResponseWriter, r *http.Request) {
 func GetCliente(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
-	var cliente models.Cliente
 
-	if err := database.DB.First(&cliente, id).Error; err != nil {
-		erro:= errors.New("Cliente não encontrado")
-		boom.NotFound(w, erro)
+	c, err := adapters.BuscarClienteById(id)
+	if err != nil {
+		boom.NotFound(w, err)
 		return
 	}
 
-	if err := codificarEmJson(w, cliente); err != nil {
+	if err := codificarEmJson(w, c); err != nil {
 		erro:= errors.New("Erro ao codificar o cliente em JSON")
 		boom.BadRequest(w, erro)
 		return
@@ -47,11 +44,9 @@ func GetCliente(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateCliente(w http.ResponseWriter, r *http.Request) {
-	var novoCliente models.Cliente
-
-	if err := json.NewDecoder(r.Body).Decode(&novoCliente); err != nil {
-		erro:= errors.New("Erro ao ler o corpo da requisição")
-		boom.BadRequest(w, erro)
+	novoCliente, err := adapters.LerCorpoRequisicao(r)
+	if err != nil {
+		boom.BadRequest(w, err)
 		return
 	}
 
@@ -60,9 +55,9 @@ func CreateCliente(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := database.DB.Create(&novoCliente).Error; err != nil {
-		erro:= errors.New("Erro ao criar o novo cliente")
-		boom.BadImplementation(w, erro)
+	novoCliente, err = adapters.CriarCliente(novoCliente)
+	if err != nil {
+		boom.BadImplementation(w, err)
 		return
 	}
 
@@ -76,6 +71,19 @@ func CreateCliente(w http.ResponseWriter, r *http.Request) {
 func DeleteCliente(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
+
+	// result := adapters.DeletarCliente(id)
+	// fmt.Println(result)
+	// if result.Error != nil {
+	// 	boom.BadImplementation(w, result.Error)
+	// 	return
+	// }
+
+	// if result.RowsAffected == 0 {
+	// 	erro:= errors.New("Cliente não encontrado com este ID")
+	// 	boom.NotFound(w, erro)
+	// 	return
+	// }
 	var cliente models.Cliente
 	
 	result := database.DB.Delete(&cliente, id)
