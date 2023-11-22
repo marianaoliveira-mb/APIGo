@@ -6,8 +6,6 @@ import (
 	"errors"
 
 	"github.com/darahayes/go-boom"
-	"github.com/Matari73/APIGo/database"
-	"github.com/Matari73/APIGo/models"
 	"github.com/Matari73/APIGo/validators"
 	"github.com/Matari73/APIGo/adapters/clientes"
 	"github.com/gorilla/mux"
@@ -72,30 +70,15 @@ func DeleteCliente(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	// result := adapters.DeletarCliente(id)
-	// fmt.Println(result)
-	// if result.Error != nil {
-	// 	boom.BadImplementation(w, result.Error)
-	// 	return
-	// }
-
-	// if result.RowsAffected == 0 {
-	// 	erro:= errors.New("Cliente não encontrado com este ID")
-	// 	boom.NotFound(w, erro)
-	// 	return
-	// }
-	var cliente models.Cliente
-	
-	result := database.DB.Delete(&cliente, id)
-	if result.Error != nil {
-		erro:= errors.New("Erro ao excluir o cliente")
-		boom.BadImplementation(w, erro)
+	_ , err:= adapters.BuscarClienteById(id)
+	if  err != nil {
+		boom.BadRequest(w, err)
 		return
 	}
-
-	if result.RowsAffected == 0 {
-		erro:= errors.New("Cliente não encontrado com este ID")
-		boom.NotFound(w, erro)
+	
+	result := adapters.DeletarCliente(id)
+	if result != nil {
+		boom.BadImplementation(w, result)
 		return
 	}
 
@@ -108,31 +91,29 @@ func UpdateCliente(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	var cliente models.Cliente
-	err := json.NewDecoder(r.Body).Decode(&cliente)
+	cliente, err := adapters.LerCorpoRequisicao(r)
 	if err != nil {
-		erro:= errors.New("Erro ao decodificar o corpo da requisição")
-		boom.BadRequest(w, erro)
+		boom.BadRequest(w, err)
 		return
 	}
-	
+
 	if err:= validators.ValidateTelNome(cliente); err != nil {
 		boom.BadRequest(w, err)
 		return
 	}
 
-	result := database.DB.Model(&models.Cliente{}).Where("cliente_id = ?", id).Updates(&cliente)
-	if result.Error != nil {
-		erro:= errors.New("Erro ao atualizar o cliente no banco de dados")
+	_ , erro:= adapters.BuscarClienteById(id)
+	if  erro != nil {
+		boom.BadRequest(w, erro)
+		return
+	}
+
+	result := adapters.AtualizarCliente(cliente,id)
+	if result != nil {
 		boom.BadImplementation(w, erro)
 		return
 	}
 
-	if result.RowsAffected == 0 {
-		erro:= errors.New("Cliente não encontrado")
-		boom.NotFound(w, erro)
-		return
-	}
 
 	if err := codificarEmJson(w, cliente); err != nil {
 		erro:= errors.New("Erro ao codificar o cliente em JSON")

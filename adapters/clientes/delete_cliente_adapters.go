@@ -9,10 +9,29 @@ import(
 
 func DeletarCliente(id string) error{
 	var cliente models.Cliente
-	if err:= database.DB.Delete(&cliente, id).Error; err != nil{
+	result:= database.DB.Delete(&cliente, id)
+
+	if result.Error != nil{
 		erro:= errors.New("Erro ao excluir o cliente")
 		return erro
 	}
 
 	return nil
 }
+
+
+
+
+// rows, result:= database.DB.Delete(&cliente, id).Rows()
+// 	fmt.Println("rows")
+// 	fmt.Println(rows)
+// 	i := 0
+// 	for rows {
+// 		i++
+// 		fmt.Println(i)
+// 	}
+// 	fmt.Println(i)
+// 	if i == 0 {
+// 		err:= errors.New("Cliente não encontrado com este ID")
+// 		return err
+// 	}

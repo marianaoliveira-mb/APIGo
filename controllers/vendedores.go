@@ -6,6 +6,7 @@ import (
 	"errors"
 
 	"github.com/darahayes/go-boom"
+	"github.com/Matari73/APIGo/adapters/vendedores"
 	"github.com/Matari73/APIGo/database"
 	"github.com/Matari73/APIGo/models"
 	"github.com/Matari73/APIGo/validators"
@@ -13,17 +14,14 @@ import (
 )
 
 func GetVendedores(w http.ResponseWriter, r *http.Request) {
-	var v []models.Vendedor
-	if err := database.DB.Find(&v).Error; err != nil {
-		erro:= errors.New("Erro ao buscar Vendedores")
-		boom.BadImplementation(w, erro)
+	vendedores , err := adapters.BuscarVendedores()
+	if err != nil {
+		boom.BadImplementation(w, err)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(v); err != nil {
-		erro:= errors.New("Erro ao codificar a resposta")
-		boom.BadImplementation(w, erro)
+	if err := adapters.CodificarRespostaVendedor(w, vendedores) ; err != nil {
+		boom.BadImplementation(w, err)
 		return
 	}
 }

@@ -30,8 +30,8 @@ func CodificarResposta(w http.ResponseWriter, clientes []models.Cliente)  error{
 	return nil
 }
 
-func BuscarClienteById(id string) ([]models.Cliente, error) {
-	var cliente []models.Cliente
+func BuscarClienteById(id string) (models.Cliente, error) {
+	var cliente models.Cliente
 	if err := database.DB.First(&cliente, id).Error; err != nil{
 		erro:= errors.New("Cliente não encontrado")
 		return cliente, erro
