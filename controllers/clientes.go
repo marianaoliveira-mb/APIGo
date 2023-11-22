@@ -114,7 +114,6 @@ func UpdateCliente(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-
 	if err := codificarEmJson(w, cliente); err != nil {
 		erro:= errors.New("Erro ao codificar o cliente em JSON")
 		boom.BadRequest(w, erro)

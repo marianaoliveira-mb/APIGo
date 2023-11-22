@@ -7,12 +7,12 @@ import(
 	"github.com/Matari73/APIGo/models"
 )
 
-func DeletarCliente(id string) error{
-	var cliente models.Cliente
-	result:= database.DB.Delete(&cliente, id)
+func DeletarVendedor(id string) error{
+	var vendedor models.Vendedor
+	result:= database.DB.Delete(&vendedor, id)
 
 	if result.Error != nil{
-		erro:= errors.New("Erro ao excluir o cliente")
+		erro:= errors.New("Erro ao excluir o vendedor")
 		return erro
 	}
 

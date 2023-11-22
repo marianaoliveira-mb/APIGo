@@ -27,3 +27,13 @@ func CodificarRespostaVendedor(w http.ResponseWriter, vendedores []models.Vended
 
 	return nil
 }
+
+func BuscarVendedorById(id string) (models.Vendedor, error) {
+	var vendedor models.Vendedor
+	if err := database.DB.First(&vendedor, id).Error; err != nil{
+		erro:= errors.New("Vendedor não encontrado")
+		return vendedor, erro
+	}
+
+	return vendedor, nil
+}
