@@ -108,7 +108,7 @@ func UpdateVendedor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result := adapters.AtualizarVendedor(vendedor, id)
+	result := adapters.AtualizarVendedor(vendedor,id)
 	if result != nil {
 		boom.BadImplementation(w, erro)
 		return

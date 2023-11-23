@@ -6,26 +6,21 @@ import (
 	"errors"
 
 	"github.com/darahayes/go-boom"
-	"github.com/Matari73/APIGo/database"
-	"github.com/Matari73/APIGo/models"
 	"github.com/Matari73/APIGo/validators"
+	"github.com/Matari73/APIGo/adapters/produtos"
 	"github.com/gorilla/mux"
 )
 
 //produtos
 func GetProdutos(w http.ResponseWriter, r *http.Request) {
-
-	var p []models.Produto
-	if err := database.DB.Find(&p).Error; err != nil {
-		erro:= errors.New("Erro ao buscar produtos")
-		boom.BadImplementation(w, erro)
+	produtos , err := adapters.BuscarProdutos()
+	if err != nil {
+		boom.BadImplementation(w, err)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(p); err != nil {
-		erro:= errors.New("Erro ao codificar a resposta")
-		boom.BadImplementation(w, erro)
+	if err := adapters.CodificarRespostaProduto(w, produtos) ; err != nil {
+		boom.BadImplementation(w, err)
 		return
 	}
 }
@@ -33,15 +28,14 @@ func GetProdutos(w http.ResponseWriter, r *http.Request) {
 func GetProduto(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
-	var produto models.Produto
-
-	if err := database.DB.First(&produto, id).Error; err != nil {
-		erro:= errors.New("Produto não encontrado")
-		boom.NotFound(w, erro)
+	
+	p, err := adapters.BuscarProdutoById(id)
+	if err != nil {
+		boom.NotFound(w, err)
 		return
 	}
 
-	if err := codificarEmJson(w, produto); err != nil {
+	if err := codificarEmJson(w, p); err != nil {
 		erro:= errors.New("Erro ao codificar o produto em JSON")
 		boom.BadRequest(w, erro)
 		return
@@ -49,10 +43,9 @@ func GetProduto(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateProduto(w http.ResponseWriter, r *http.Request) {
-	var novoProduto models.Produto
-	if err := json.NewDecoder(r.Body).Decode(&novoProduto); err != nil {
-		erro:= errors.New("Erro ao ler o corpo da requisição")
-		boom.BadRequest(w, erro)
+	novoProduto, err := adapters.LerCorpoRequisicao(r)
+	if  err != nil {
+		boom.BadRequest(w, err)
 		return
 	}
 
@@ -62,16 +55,15 @@ func CreateProduto(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Verificar se o nome do produto já existe
-	var produtoExistente models.Produto
-	if err := database.DB.Where("nome_produto = ?", novoProduto.NomeProduto).First(&produtoExistente).Error; err == nil {
-		erro:= errors.New("Já existe um produto com este nome")
+	erro := adapters.VerificarSeExiste(novoProduto)
+	if  erro != nil {
 		boom.BadRequest(w, erro)
 		return
 	}
 
-	if err := database.DB.Create(&novoProduto).Error; err != nil {
-		erro:= errors.New("Erro ao criar o novo produto")
-		boom.BadImplementation(w, erro)
+	novoProduto, err = adapters.CriarProduto(novoProduto)
+	if err == nil {
+		boom.BadImplementation(w, err)
 		return
 	}
 
@@ -86,18 +78,15 @@ func DeleteProduto(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	var produto models.Produto
-	result := database.DB.Delete(&produto, id)
-
-	if result.Error != nil {
-		erro:= errors.New("Erro ao excluir o produto")
-		boom.BadImplementation(w, erro)
+	_ , err:= adapters.BuscarProdutoById(id)
+	if  err != nil {
+		boom.BadRequest(w, err)
 		return
 	}
 
-	if result.RowsAffected == 0 {
-		erro:= errors.New("Produto não encontrado com este ID")
-		boom.NotFound(w, erro)
+	result := adapters.DeletarProduto(id)
+	if result != nil {
+		boom.BadImplementation(w, result)
 		return
 	}
 
@@ -110,11 +99,9 @@ func UpdateProduto(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	var produto models.Produto
-	err := json.NewDecoder(r.Body).Decode(&produto)
+	produto, err := adapters.LerCorpoRequisicao(r)
 	if err != nil {
-		erro:= errors.New("Erro ao decodificar o corpo da requisição")
-		boom.BadRequest(w, erro)
+		boom.BadRequest(w, err)
 		return
 	}
 
@@ -123,16 +110,15 @@ func UpdateProduto(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result := database.DB.Model(&models.Produto{}).Where("produto_id = ?", id).Updates(&produto)
-	if result.Error != nil {
-		erro:= errors.New("Erro ao atualizar o produto no banco de dados")
-		boom.BadImplementation(w, erro)
+	_ , erro:= adapters.BuscarProdutoById(id)
+	if  erro != nil {
+		boom.BadRequest(w, erro)
 		return
 	}
 
-	if result.RowsAffected == 0 {
-		erro:= errors.New("Produto não encontrado")
-		boom.NotFound(w, erro)
+	result := adapters.AtualizarProduto(produto,id)
+	if result != nil {
+		boom.BadImplementation(w, erro)
 		return
 	}
 
