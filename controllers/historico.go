@@ -12,61 +12,7 @@ import (
 	"github.com/Matari73/APIGo/database"
 	"github.com/Matari73/APIGo/models"
 	"github.com/gorilla/mux"
-	"gorm.io/gorm"
 )
-
-func verificaClienteExistente(clienteID uint) (bool, error) {
-	var cliente models.Cliente
-	result := database.DB.First(&cliente, clienteID)
-	if result.Error != nil {
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return false, nil // Cliente não encontrado
-		}
-		return false, result.Error //erro ao consultar o banco
-	}
-	return true, nil // Se o cliente for encontrado
-}
-
-func verificaVendedorExistente(vendedorID uint) (bool, error) {
-	var vendedor models.Vendedor
-	result := database.DB.First(&vendedor, vendedorID)
-	if result.Error != nil {
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return false, nil
-		}
-		return false, result.Error
-	}
-	return true, nil
-}
-
-func obterSaldoCliente(clienteID uint) (float64, error) {
-	var cliente models.Cliente
-	result := database.DB.First(&cliente, clienteID)
-	if result.Error != nil {
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return 0.00000000, nil
-		}
-	}
-	return cliente.Saldo, nil
-}
-
-func atualizarSaldoCliente(clienteID uint, valorPedido float64) error {
-	var cliente models.Cliente
-	result := database.DB.Where("cliente_id = ?", clienteID).First(&cliente)
-	if result.Error != nil {
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return fmt.Errorf("cliente com ID %d não encontrado", clienteID)
-		}
-		return result.Error
-	}
-
-	cliente.Saldo -= valorPedido
-	if err := database.DB.Where("cliente_id = ?", clienteID).Save(&cliente).Error; err != nil {
-		return fmt.Errorf("erro ao atualizar o saldo do cliente: %v", err)
-	}
-
-	return nil
-}
 
 func AdicionarProdutoAoPedidoHandler(w http.ResponseWriter, r *http.Request) {
 	var dadosRequisicao struct {
