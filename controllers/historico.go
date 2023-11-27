@@ -3,7 +3,6 @@ package controllers
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -11,6 +10,7 @@ import (
 	"github.com/darahayes/go-boom"
 	"github.com/Matari73/APIGo/database"
 	"github.com/Matari73/APIGo/models"
+	"github.com/Matari73/APIGo/adapters/historico"
 	"github.com/gorilla/mux"
 )
 
@@ -27,60 +27,16 @@ func AdicionarProdutoAoPedidoHandler(w http.ResponseWriter, r *http.Request) {
 		boom.BadRequest(w, erro)
 	}
 
-	err = AdicionarProdutoAoPedido(dadosRequisicao.PedidoID, dadosRequisicao.ProdutoID, dadosRequisicao.Quantidade)
+	err = adapters.AdicionarProdutoAoPedido(dadosRequisicao.PedidoID, dadosRequisicao.ProdutoID, dadosRequisicao.Quantidade)
 	if err != nil {
-		erro:= errors.New("Erro ao adicionar produto ao pedido")
-		boom.BadImplementation(w, erro)
+		boom.BadImplementation(w, err)
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	sucesso:= CreateResposta("Produto adicionado ao pedido com sucesso!")
+	sucesso:= CreateResposta("Produto adicionado ao pedido!")
 	json.NewEncoder(w).Encode(sucesso)
 }
 
-func AdicionarProdutoAoPedido(pedidoID uint, produtoID uint, quantidade int) error {
-	pedido := models.Pedido{}
-	if err := database.DB.First(&pedido, pedidoID).Error; err != nil {
-		return errors.New("Erro ao carregar o pedido")
-	}
-
-	produto := models.Produto{}
-	if err := database.DB.First(&produto, produtoID).Error; err != nil {
-		return errors.New("Erro ao carregar o produto")
-
-	}
-
-	if quantidade > produto.Estoque {
-		return errors.New("Quantidade maior do que o estoque disponível")
-	}
-
-	novoEstoque := produto.Estoque - quantidade
-	if err := database.DB.Model(&models.Produto{}).Where("produto_id = ?", produtoID).
-		Update("estoque", novoEstoque).Error; err != nil {
-			return errors.New("Erro ao atualizar o estoque do produto")
-	}
-
-	produtoPedido := models.ProdutoPedido{}
-	resultProdutoPedido := database.DB.Where("produto_id = ? AND pedido_id = ?", produtoID, pedidoID).First(&produtoPedido)
-	if resultProdutoPedido.Error == nil {
-		errors.New("A associação entre produto e pedido já existe.")
-		return nil
-	}
-
-	produtoPedido = models.ProdutoPedido{
-		PedidoID:   int(pedidoID),
-		ProdutoID:  int(produtoID),
-		Quantidade: quantidade,
-	}
-
-	resultCriacao := database.DB.Create(&produtoPedido)
-	if resultCriacao.Error != nil {
-		return errors.New("Erro ao criar a associação entre produto e pedido")
-	}
-
-	fmt.Println("Associação entre produto e pedido criada com sucesso.")
-	return nil
-}
 
 type HistoricoCompraStru struct {
 	PedidoID     uint              `json:"pedido_id"`
@@ -167,6 +123,7 @@ func HistoricoVendasVendedor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//adapter
 	var historicoVendas []HistoricoVendaStru
 
 	err = database.DB.Table("pedido").
