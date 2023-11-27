@@ -3,19 +3,19 @@ title: Entity Relationship Diagram Order CRUD
 ---
 erDiagram
     Cliente{
-        Serial id_cliente PK
+        Integer id_cliente PK
         Varchar(60) nome_cliente "NOT NULL"
         Varchar telefone_cliente "NOT NULL"
         Float saldo "NOT NULL"
     }
 
     Vendedor{
-        Serial id_vendedor PK
+        Integer id_vendedor PK
         Varchar(60) nome_vendedor "NOT NULL"
     }
 
     Pedido{
-        Serial id_pedido PK
+        Integer id_pedido PK
         timestamptz data_pedido "NOT NULL default(now())"
         Varchar status_pedido "NOT NULL"
         Float valor_pedido "NOT NULL"
@@ -24,7 +24,7 @@ erDiagram
     }
 
     Produto{
-        Serial produto_id PK
+        Integer produto_id PK
         Varchar(60) nome_produto "NOT NULL"
         Float valor_produto "NOT NULL"
         Integer estoque "NOT NULL"

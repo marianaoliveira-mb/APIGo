@@ -6,8 +6,6 @@ import (
 	"errors"
 
 	"github.com/darahayes/go-boom"
-	// "github.com/Matari73/APIGo/database"
-	// "github.com/Matari73/APIGo/models"
 	"github.com/Matari73/APIGo/adapters/pedidos"
 	"github.com/Matari73/APIGo/validators"
 	"github.com/gorilla/mux"

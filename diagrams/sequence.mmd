@@ -3,20 +3,33 @@ title: Sequence Diagram Order CRUD
 ---
 
 sequenceDiagram
-    participant Cliente
-    participant Vendedor
-    participant Pedido
-    participant Produto
+    participant Client
+    participant Controllers
+    participant Validators
+    participant Adapters
     participant BD
 
-    Cliente->>Vendedor: Pedido de Compra
-    Vendedor->>Pedido: Cria Pedido
-    Pedido-->>BD: Verifica Disponibilidade de Produtos
-    Pedido->>Produto: Consulta Detalhes do Produto
-    Produto-->>Pedido: Retorna Informações do Produto
-    Pedido->>Pedido: Adiciona Produto ao Pedido
-    Vendedor->>Pedido: Finaliza Pedido
-    Pedido-->>BD: Atualiza Status no Banco de Dados
-    BD-->>Pedido: Confirmação de Atualização
-    Pedido-->>Cliente: Confirmação de Compra
-    Cliente--x Vendedor: Fim da Transação
+
+    Client->>Controllers: Cadastrar produtos
+    Controllers->>Adapters: Ler a requisição
+    alt  Requisição inválida
+        Adapters->>Controllers: Erro
+        Controllers->>Client: Erro
+    else Requisição válida
+        Adapters->>Controllers: nil
+    end
+    Controllers->>Validators: Validar dados passados pelo Client
+    alt  Dados válidos
+        Validators->>Controllers: Nil
+    else Dados inválidos
+        Validators->>Controllers: Erro
+        Controllers->>Client: Erro
+    end
+    Controllers->>Adapters: Verifica se o produto existe
+    alt  Produto não existe
+        Adapters->>Controllers: Nil
+    else Produto já existe
+        Validators->>Controllers: Erro
+        Controllers->>Client: Erro
+    end
+    
