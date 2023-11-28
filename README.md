@@ -17,7 +17,7 @@ O objetivo do projeto é a criação de uma API voltada para a área de vendas(a
 ## Setup
 
 *1.* Clonar o repositório
-```git clone https://github.com/Matari73/APIGo.git```
+```git clone git@github.com:marianaoliveira-mb/APIGo.git```
 
 *2.* Instalar imagem docker-hub
 ```docker pull postgres:14.3-alpine```
