@@ -7,6 +7,7 @@ import (
 
 	"github.com/darahayes/go-boom"
 	"github.com/Matari73/APIGo/adapters/pedidos"
+	"github.com/Matari73/APIGo/models"
 	"github.com/Matari73/APIGo/validators"
 	"github.com/gorilla/mux"
 )
@@ -41,10 +42,12 @@ func GetPedido(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreatePedido(w http.ResponseWriter, r *http.Request) {
-	novoPedido, err:= adapters.LerCorpoRequisicao(r)
-	if err != nil {
-		boom.BadRequest(w, err)
-		return
+	var novoPedido models.Pedido
+	err:= json.NewDecoder(r.Body).Decode(&novoPedido)
+	if err != nil{
+		erro:= errors.New("Erro ao ler o corpo da requisição")
+		boom.BadRequest(w, erro)
+		return 
 	}
 
 	if err:= validators.ValidatePedido(novoPedido); err != nil {
@@ -95,10 +98,12 @@ func UpdatePedido(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	pedido, err := adapters.LerCorpoRequisicao(r)
-	if err != nil {
-		boom.BadRequest(w, err)
-		return
+	var pedido models.Pedido
+	err:= json.NewDecoder(r.Body).Decode(&pedido)
+	if err != nil{
+		erro:= errors.New("Erro ao ler o corpo da requisição")
+		boom.BadRequest(w, erro)
+		return 
 	}
 
 	if err:= validators.ValidatePedido(pedido); err != nil {

@@ -8,6 +8,7 @@ import (
 	"github.com/darahayes/go-boom"
 	"github.com/Matari73/APIGo/validators"
 	"github.com/Matari73/APIGo/adapters/clientes"
+	"github.com/Matari73/APIGo/models"
 	"github.com/gorilla/mux"
 )
 
@@ -42,9 +43,11 @@ func GetCliente(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateCliente(w http.ResponseWriter, r *http.Request) {
-	novoCliente, err := adapters.LerCorpoRequisicao(r)
-	if err != nil {
-		boom.BadRequest(w, err)
+	var novoCliente models.Cliente
+	err:= json.NewDecoder(r.Body).Decode(&novoCliente)
+	if err != nil{
+		erro:= errors.New("Erro ao ler o corpo da requisição")
+		boom.BadRequest(w, erro)
 		return
 	}
 
@@ -91,9 +94,11 @@ func UpdateCliente(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	cliente, err := adapters.LerCorpoRequisicao(r)
-	if err != nil {
-		boom.BadRequest(w, err)
+	var cliente models.Cliente
+	err:= json.NewDecoder(r.Body).Decode(&cliente)
+	if err != nil{
+		erro:= errors.New("Erro ao ler o corpo da requisição")
+		boom.BadRequest(w, erro)
 		return
 	}
 

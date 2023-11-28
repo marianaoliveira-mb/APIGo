@@ -11,12 +11,12 @@ sequenceDiagram
 
 
     Client->>Controllers: Cadastrar produtos
-    Controllers->>Adapters: Ler a requisição
+    Controllers->>Controllers: Ler a requisição
     alt  Requisição inválida
-        Adapters->>Controllers: Erro
+        Controllers->>Controllers: Erro
         Controllers->>Client: Erro
     else Requisição válida
-        Adapters->>Controllers: nil
+        Controllers->>Controllers: nil
     end
     Controllers->>Validators: Validar dados passados pelo Client
     alt  Dados válidos
@@ -25,11 +25,24 @@ sequenceDiagram
         Validators->>Controllers: Erro
         Controllers->>Client: Erro
     end
-    Controllers->>Adapters: Verifica se o produto existe
+    Controllers->>Adapters: Verificar se o produto existe
+    Adapters->>BD: Consulta no banco
+    BD->>Adapters: Retorna resultado
     alt  Produto não existe
         Adapters->>Controllers: Nil
     else Produto já existe
         Validators->>Controllers: Erro
         Controllers->>Client: Erro
     end
+    Controllers->>Adapters: Criar produto
+    Adapters->>BD: Criar produto
+    alt  Criação feita
+        BD->>Adapters: Nil
+    else Erro na criação
+        BD->>Adapters: Erro
+        Adapters->>Controllers: Erro
+        Controllers->>Client: Erro
+    end
+    Adapters->>Controllers: Mensagem de sucesso
+    Controllers->>Client: Mensagem de sucesso
     

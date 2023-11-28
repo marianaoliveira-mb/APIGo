@@ -7,6 +7,7 @@ import (
 
 	"github.com/darahayes/go-boom"
 	"github.com/Matari73/APIGo/adapters/vendedores"
+	"github.com/Matari73/APIGo/models"
 	"github.com/Matari73/APIGo/validators"
 	"github.com/gorilla/mux"
 )
@@ -42,9 +43,12 @@ func GetVendedor(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateVendedor(w http.ResponseWriter, r *http.Request) {
-	novoVendedor, err := adapters.LerCorpoRequisicao(r)
+	var novoVendedor models.Vendedor
+
+	err := json.NewDecoder(r.Body).Decode(&novoVendedor)
 	if err != nil {
-		boom.BadRequest(w, err)
+		erro:= errors.New("Erro ao ler o corpo da requisição")
+		boom.BadRequest(w, erro)
 		return
 	}
 	
@@ -91,9 +95,12 @@ func UpdateVendedor(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	vendedor, err := adapters.LerCorpoRequisicao(r)
+	var vendedor models.Vendedor
+
+	err := json.NewDecoder(r.Body).Decode(&vendedor)
 	if err != nil {
-		boom.BadRequest(w, err)
+		erro:= errors.New("Erro ao ler o corpo da requisição")
+		boom.BadRequest(w, erro)
 		return
 	}
 

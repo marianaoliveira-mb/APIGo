@@ -8,6 +8,7 @@ import (
 	"github.com/darahayes/go-boom"
 	"github.com/Matari73/APIGo/validators"
 	"github.com/Matari73/APIGo/adapters/produtos"
+	"github.com/Matari73/APIGo/models"
 	"github.com/gorilla/mux"
 )
 
@@ -43,11 +44,14 @@ func GetProduto(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateProduto(w http.ResponseWriter, r *http.Request) {
-	novoProduto, err := adapters.LerCorpoRequisicao(r)
-	if  err != nil {
-		boom.BadRequest(w, err)
+	var novoProduto models.Produto
+
+	err := json.NewDecoder(r.Body).Decode(&novoProduto)
+	if err != nil {
+		erro:= errors.New("Erro ao ler o corpo da requisição")
+		boom.BadRequest(w, erro)
 		return
-	}
+	}	
 
 	if err:= validators.ValidateProduto(novoProduto); err != nil {
 		boom.BadRequest(w, err)
@@ -55,9 +59,9 @@ func CreateProduto(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Verificar se o nome do produto já existe
-	erro := adapters.VerificarSeExiste(novoProduto)
-	if  erro != nil {
-		boom.BadRequest(w, erro)
+	err = adapters.VerificarSeExiste(novoProduto)
+	if  err != nil {
+		boom.BadRequest(w, err)
 		return
 	}
 
@@ -68,7 +72,7 @@ func CreateProduto(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := codificarEmJson(w, novoProduto); err != nil {
-		erro:= errors.New("Erro ao codificar o cliente em JSON")
+		erro:= errors.New("Erro ao codificar o Produto em JSON")
 		boom.BadImplementation(w, erro)
 		return
 	}
@@ -99,9 +103,10 @@ func UpdateProduto(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	produto, err := adapters.LerCorpoRequisicao(r)
-	if err != nil {
-		boom.BadRequest(w, err)
+	var produto models.Produto
+	if err := json.NewDecoder(r.Body).Decode(&produto); err != nil {
+		erro:= errors.New("Erro ao ler o corpo da requisição")
+		boom.BadRequest(w, erro)
 		return
 	}
 
