@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"errors"
+	"fmt"
 
 	"github.com/darahayes/go-boom"
 	"github.com/Matari73/APIGo/validators"
@@ -66,7 +67,7 @@ func CreateProduto(w http.ResponseWriter, r *http.Request) {
 	}
 
 	novoProduto, err = adapters.CriarProduto(novoProduto)
-	if err == nil {
+	if err != nil {
 		boom.BadImplementation(w, err)
 		return
 	}
