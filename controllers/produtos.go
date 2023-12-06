@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"errors"
-	"fmt"
 
 	"github.com/darahayes/go-boom"
 	"github.com/Matari73/APIGo/validators"
